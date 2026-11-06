@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Remplace "ta-domaine.com" par ton vrai nom de domaine (les 2 fois : URL ci-dessous et dans robots.txt) -->
+<!-- Les pages e.html et l.html sont dynamiques (?s= et ?id=) : ajoute les URLs d'épisodes ici si tu veux les indexer finement, -->
+<!-- ou laisse Google suivre les liens depuis les pages séries. -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://ta-domaine.com/index.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
+    <loc>https://ta-domaine.com/benamoura.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ta-domaine.com/bentoul.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://ta-domaine.com/benamoura/e.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ta-domaine.com/bentoul/e.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ta-domaine.com/benamoura/l.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ta-domaine.com/bentoul/l.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+</urlset>

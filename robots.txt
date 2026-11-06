@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /profile.html
+Disallow: /users.html
+
+# Remplace ta-domaine.com par l'adresse réelle de ton site
+Sitemap: https://ta-domaine.com/sitemap.xml

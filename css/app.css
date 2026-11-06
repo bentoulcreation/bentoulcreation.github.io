@@ -1,0 +1,561 @@
+
+:root {
+    --header-height: 64px;
+    --footer-height: 54px;
+    --sidebar-width: 260px;
+    --primary: #142B45;
+    --secondary: #16B89A;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    background-color: #f4f6f9;
+    overflow-x: hidden;
+}
+h2{
+    line-height: normal;
+    color: RED;
+}
+
+/* HEADER FIXED EN HAUT */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--header-height);
+    background-color: #ffffff;
+    color: var(--primary);
+    border-bottom: 1px solid #e6ebef;
+    padding: 0 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+}
+
+.nav-menu ul {
+    display: flex;
+    list-style: none;
+    gap: 20px;
+}
+
+.nav-menu a {
+    color: var(--primary);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.nav-menu a:hover {
+    color: var(--secondary);
+}
+
+/* BOUTON MENU */
+.menu-toggle {
+    background: transparent;
+    color: var(--primary);
+    border: none;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+/* STRUCTURE PRINCIPALE */
+.app-layout {
+    display: block;
+    min-height: 100vh;
+    padding-top: var(--header-height);
+    padding-bottom: var(--footer-height);
+}
+
+/* SIDEBAR OVERLAY */
+.sidebar {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    bottom: var(--footer-height);
+    width: var(--sidebar-width);
+    max-width: 85%;
+    background-color: white;
+    border-right: 1px solid #e0e0e0;
+    padding: 25px 20px;
+    z-index: 1200;
+    overflow-y: auto;
+
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+}
+
+/* SIDEBAR OUVERTE */
+.sidebar.active {
+    transform: translateX(0);
+}
+
+.sidebar-links {
+    list-style: none;
+}
+
+.sidebar-links li {
+    margin-bottom: 18px;
+}
+
+.sidebar-links a {
+    color: #333;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.sidebar-links a:hover {
+    background-color: #f0f5f4;
+    color: var(--secondary);
+}
+
+/* FOND SOMBRE DERRIÈRE SIDEBAR */
+.sidebar-overlay {
+    position: fixed;
+    inset: var(--header-height) 0 var(--footer-height) 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 1100;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s ease;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* CONTENU PRINCIPAL */
+.main-content {
+    padding: 30px;
+    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+}
+
+/* FOOTER FIXED EN BAS */
+.main-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--footer-height);
+    background-color: #ffffff;
+    color: #718096;
+    border-top: 1px solid #e6ebef;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.footer-links {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer-links a {
+    padding: 7px 16px;
+    border-radius: 999px;
+    background: #f0f4f7;
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.footer-links a:hover {
+    background: var(--secondary);
+    color: #ffffff;
+}
+
+.footer-links .hidden-footer {
+    display: none;
+}
+
+/* ESPACE PUB (activé à la visibilité par app.js) */
+.ad-slot {
+    min-height: 60px;
+    margin: 10px auto 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ad-slot iframe {
+    max-width: 100%;
+    border: 0;
+}
+
+.ad-slot:empty {
+    min-height: 0;
+    margin-bottom: 70px;
+}
+
+/* RESPONSIVE */
+@media (max-width: 600px) {
+    .main-header {
+        padding: 0 15px;
+    }
+
+    .nav-menu {
+        display: none;
+    }
+
+    .main-content {
+        padding: 18px;
+    }
+}
+
+/* =========================================
+   PAGES CONTENU — SÉRIES / ÉPISODES / LECTURE
+========================================= */
+
+.page-head {
+    margin-bottom: 28px;
+}
+
+.page-head h1 {
+    color: #10151c;
+    font-size: clamp(20px, 4vw, 25px);
+    font-weight: 800;
+    margin-bottom: 18px;
+       display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.page-head p {
+    color: #718096;
+    font-size: 14px;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.content-card {
+    position: relative;
+    display: block;
+    aspect-ratio: 3 / 4.4;
+    border-radius: 14px;
+    overflow: hidden;
+    text-decoration: none;
+    background: linear-gradient(160deg, #1c4662, #142B45);
+    box-shadow: 0 6px 18px #142b4518;
+    transition: 0.2s;
+}
+
+.content-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px #142b4526;
+}
+
+.content-card .card-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.content-card .card-overlay {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 34px 10px 10px;
+    background: linear-gradient(to top, rgba(0,0,0,.85) 35%, rgba(0,0,0,0));
+    color: white;
+}
+
+/* BADGE "1 crédit" — épisodes payants (après les 3 premiers) */
+.content-card.locked .card-img {
+    filter: brightness(.55) saturate(.6);
+}
+
+.content-card.locked .card-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.55), rgba(6,20,40,.45));
+    pointer-events: none;
+}
+
+.lock-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f2a33c;
+    color: #2b1c05;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 9px;
+    border-radius: 999px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.35);
+}
+
+.content-card .card-overlay h3 {
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.content-card .card-overlay p {
+    font-size: 11px;
+    line-height: 1.35;
+    color: #e8edf1;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.state-msg {
+    color: #718096;
+    text-align: center;
+    padding: 40px 0;
+    font-size: 14px;
+}
+
+.state-msg.error {
+    color: #c0392b;
+}
+
+/* LECTURE D'ÉPISODE */
+
+.reader {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.back-link {
+    display: inline-block;
+    color: var(--secondary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 18px;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.reader h1 {
+    color: var(--primary);
+    font-size: clamp(18px, 2vw, 20px);
+    margin-bottom: 8px;
+       display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.reader .reader-sub {
+    color: #718096;
+    font-size: 12px;
+    margin-bottom: 22px;
+       display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.reader-body {
+    background: white;
+    border: 1px solid #e6ebef;
+    border-radius: 14px;
+    padding: 26px;
+    color: #263445;
+    font-size: 15px;
+    line-height: 1.9;
+}
+
+.reader-body img {
+    max-width: 100%;
+    border-radius: 10px;
+    margin: 12px 0;
+}
+
+/* COMPTEURS D'ÉPISODE */
+
+.stats-bar {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.stat-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: white;
+    border: 1px solid #e6ebef;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #263445;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.stat-btn svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+}
+
+.stat-btn:hover:not(:disabled) {
+    border-color: var(--secondary);
+}
+
+.stat-btn:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.stat-btn.active-like {
+    background: var(--secondary);
+    border-color: var(--secondary);
+    color: white;
+}
+
+.stat-btn.active-dislike {
+    background: #c0392b;
+    border-color: #c0392b;
+    color: white;
+}
+
+.stat-view {
+    cursor: default;
+}
+
+/* COMMENTAIRES */
+
+.comments-section {
+    margin-top: 34px;
+}
+
+.comments-section h2 {
+    font-size: 18px;
+    color: var(--primary);
+    margin-bottom: 14px;
+}
+
+.comment-item {
+    background: white;
+    border: 1px solid #e6ebef;
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+}
+
+.comment-item .c-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    color: #718096;
+    margin-bottom: 6px;
+}
+
+.comment-item .c-head strong {
+    color: var(--primary);
+}
+
+.comment-item p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #263445;
+    overflow-wrap: anywhere;
+}
+
+.comment-form textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #e6ebef;
+    border-radius: 12px;
+    padding: 12px;
+    font: inherit;
+    resize: vertical;
+    background: white;
+    color: #263445;
+}
+
+.comment-form textarea:focus {
+    outline: none;
+    border-color: var(--secondary);
+}
+
+.comment-form .send-btn {
+    margin-top: 10px;
+    background: var(--secondary);
+    color: white;
+    border: 0;
+    border-radius: 10px;
+    padding: 11px 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.comment-form .send-btn:hover:not(:disabled) {
+    background: #109d82;
+}
+
+.comment-form .send-btn:disabled {
+    opacity: .6;
+    cursor: wait;
+}
+
+.login-to-comment {
+    background: white;
+    border: 1px dashed #cfd8e3;
+    border-radius: 12px;
+    padding: 16px;
+    font-size: 13px;
+    color: #718096;
+    text-align: center;
+}
+
+.login-to-comment a {
+    color: var(--secondary);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.comments-empty {
+    color: #718096;
+    font-size: 13px;
+    text-align: center;
+    padding: 14px 0;
+}

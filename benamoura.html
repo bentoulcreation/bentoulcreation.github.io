@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Séries d'amour et histoires sentimentales | BENTOUL CREATION</title>
+    <meta name="description" content="Découvre toutes les séries d'amour BENTOUL CREATION : histoires sentimentales, épisodes à lire en ligne et nouveaux chapitres publiés régulièrement.">
+    <meta name="keywords" content="séries d'amour, histoires d'amour, lecture en ligne, Benamoura, BENTOUL CREATION">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="BENTOUL CREATION">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="BENTOUL CREATION">
+    <meta property="og:title" content="Séries d'amour et histoires sentimentales">
+    <meta property="og:description" content="Toutes les séries Benamoura : amour, histoires et épisodes à lire en ligne.">
+    <meta name="twitter:card" content="summary">
+
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+    <main class="main-content" data-app-content>
+        <div class="page-head">
+            <h1>Les Séries</h1>
+            <p>Toutes les séries BENTOUL CREATION, disponibles à la lecture.</p>
+        </div>
+
+        <div id="series-grid" class="state-msg">Chargement des séries...</div>
+    </main>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/session.js"></script>
+    <script src="/js/app.js"></script>
+
+    <script>
+        async function btmApiGet(action, extra) {
+            const query = new URLSearchParams(Object.assign({ action: action }, extra || {}));
+            const res = await fetch(window.BTM_CONFIG.BENAMOURA_API_URL + "?" + query);
+            if (!res.ok) throw new Error("Serveur indisponible.");
+            return await res.json();
+        }
+
+        function plainText(html, max) {
+            const div = document.createElement("div");
+            div.innerHTML = String(html || "");
+            let text = (div.textContent || "").replace(/\s+/g, " ").trim();
+            if (text.length > max) text = text.slice(0, max).trimEnd() + "...";
+            return text;
+        }
+
+        async function init() {
+            const grid = document.getElementById("series-grid");
+
+            try {
+                const result = await btmApiGet("getSeries");
+
+                if (result.status !== "success") {
+                    throw new Error(result.message || "Réponse invalide.");
+                }
+
+                const published = (result.data || []).filter(function (serie) {
+                    return String(serie.statut || "Publié") === "Publié";
+                });
+
+                if (!published.length) {
+                    grid.className = "state-msg";
+                    grid.textContent = "Aucune série publiée pour le moment.";
+                    return;
+                }
+
+                grid.className = "cards-grid";
+                grid.innerHTML = published.map(function (serie) {
+                    const url = window.BTM_CONFIG.EPISODES_PAGE + "?s=" + encodeURIComponent(serie.id);
+                    const img = serie.image
+                        ? '<img class="card-img" src="' + BTM.escapeHtml(serie.image) + '" alt="" loading="lazy">'
+                        : "";
+
+                    return `
+                        <a class="content-card" href="${url}">
+                            ${img}
+                            <div class="card-overlay">
+                                <h3>${BTM.escapeHtml(serie.titre || "")}</h3>
+                                <p>${BTM.escapeHtml(plainText(serie.contenu, 160))}</p>
+                            </div>
+                        </a>`;
+                }).join("");
+
+            } catch (error) {
+                grid.className = "state-msg error";
+                grid.textContent = "Impossible de charger les séries : " + error.message;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

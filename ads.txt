@@ -1,0 +1,11 @@
+# Fichier Google Ads — à servir à la racine du domaine.
+#
+# 1) Si tu utilises Google AdSense :
+#    colle la ligne fournie par Google dans Ads.txt, par exemple :
+#    google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+#    (remplace pub-... par ton ID éditeur ; il va aussi dans
+#     js/config.js -> ADS.ADSENSE_CLIENT, et ADSENSE_SLOT = ton code bloc)
+#
+# 2) Pour le réseau bunlon/biomanos utilisé par le script de pub actuel :
+#    décommente et ajuste la ligne ci-dessous d'après leur facture Ads.txt :
+# biomanos.org, publisher-key-e1fU52b3U1LFvRi4QtLLF8BbjJ3Y6mKbK5, RESELLER

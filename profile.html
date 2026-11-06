@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Mon profil | BENTOUL CREATION</title>
+  <meta name="description" content="Gère ton compte BENTOUL CREATION : pseudo, crédits, épisodes débloqués et préférences.">
+  <meta name="robots" content="noindex, follow">
+  <meta name="author" content="BENTOUL CREATION">
+  <meta property="og:site_name" content="BENTOUL CREATION">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/app.css">
+
+  <style>
+
+button {
+  font: inherit;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.app-container {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* HEADER */
+
+.top-header {
+  height: 75px;
+  padding: 0 6%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  text-decoration: none;
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.brand b {
+  color: #a99aff;
+}
+
+.brand-icon {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  border-radius: 12px;
+  font-size: 23px;
+}
+
+/* PROFIL */
+
+.profile-wrapper {
+  width: 100%;
+  max-width: 640px;
+  margin: auto;
+  padding: 45px 20px;
+}
+
+.page-title {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 26px;
+  margin-bottom: 6px;
+}
+
+.page-subtitle {
+  color: var(--muted);
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+.profile-card {
+  padding: 25px;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.profile-top {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.avatar {
+  width: 55px;
+  height: 55px;
+  display: grid;
+  place-items: center;
+  background: var(--primary);
+  border-radius: 17px;
+  font-size: 24px;
+  font-weight: 800;
+}
+
+.profile-top h2 {
+  margin-bottom: 5px;
+}
+
+.profile-top p {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.credits-box {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  background: linear-gradient(120deg, #5140ca, #7661ed);
+  border-radius: 15px;
+  margin-bottom: 25px;
+}
+
+.credits-box span {
+  font-size: 12px;
+}
+
+.credits-box strong {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 40px;
+  margin: 5px 0;
+}
+
+.credits-box small {
+  font-size: 11px;
+  opacity: .8;
+}
+
+.profile-details {
+  display: grid;
+  gap: 17px;
+}
+
+.profile-details div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+  min-width: 0;
+}
+
+.profile-details span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.profile-details strong {
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.referral-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.copy-btn {
+  border: 1px solid var(--border);
+  background: var(--surface-light);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.copy-btn:hover {
+  border-color: var(--primary);
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 14px;
+  margin-top: 25px;
+  border: 1px solid rgba(255,102,122,.3);
+  border-radius: 11px;
+  background: rgba(255,102,122,.08);
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.loading-panel {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 0;
+}
+
+/* FOOTER */
+
+.footer {
+  padding: 20px;
+  text-align: center;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 11px;
+  margin-top: auto;
+}
+
+.footer span {
+  display: block;
+  margin-top: 5px;
+}
+
+/* MOBILE */
+
+@media (max-width: 480px) {
+
+  .top-header {
+    height: 65px;
+    padding: 0 15px;
+  }
+
+  .brand {
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .profile-wrapper {
+    padding: 30px 13px;
+  }
+
+  .profile-card {
+    padding: 20px 17px;
+  }
+
+}
+
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+
+    <main class="profile-wrapper" data-app-content>
+
+      <div id="loading-panel" class="loading-panel">
+        Chargement de ton profil...
+      </div>
+
+      <div id="profile-view" class="hidden">
+
+        <h1 class="page-title">Mon profil</h1>
+        <p class="page-subtitle" id="member-since">Tes informations BENTOUL CREATION.</p>
+
+        <div class="profile-card">
+
+          <div class="profile-top">
+            <div class="avatar" id="profile-avatar">B</div>
+
+            <div>
+              <h2 id="profile-name">Utilisateur</h2>
+              <p id="profile-username">@username</p>
+            </div>
+          </div>
+
+          <div class="credits-box">
+            <span>Mon solde de credits</span>
+            <strong id="profile-credits">0</strong>
+            <small>Credits disponibles</small>
+          </div>
+
+          <div class="profile-details">
+
+            <div>
+              <span>Email</span>
+              <strong id="profile-email">-</strong>
+            </div>
+
+            <div>
+              <span>Telephone</span>
+              <strong id="profile-numero">-</strong>
+            </div>
+
+            <div>
+              <span>Mon identifiant</span>
+              <strong id="profile-id">-</strong>
+            </div>
+
+            <div>
+              <span>Mon code parrainage</span>
+              <strong id="profile-reference">-</strong>
+              <div class="referral-actions">
+                <button type="button" class="copy-btn" id="copy-reference">Copier mon code</button>
+              </div>
+            </div>
+
+            <div>
+              <span>Code de mon parrain</span>
+              <strong id="profile-parrain">-</strong>
+            </div>
+
+          </div>
+
+          <button id="logout-btn" class="logout-btn" type="button">
+            Deconnexion
+          </button>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/session.js"></script>
+    <script src="/js/app.js"></script>
+
+  <script>
+
+    async function init() {
+
+      if (!BTM.getSession()) {
+        BTM.gotoLogin();
+        return;
+      }
+
+      const user = await BTM.refreshUser();
+
+      if (!user) return; // refreshUser a redirige vers la connexion
+
+      BTM.updateAuthZones(user);
+
+      document.getElementById("profile-avatar").textContent =
+        String(user.nom || "?").charAt(0).toUpperCase();
+      document.getElementById("profile-name").textContent = user.nom || "-";
+      document.getElementById("profile-username").textContent = "@" + (user.username || "-");
+      document.getElementById("profile-credits").textContent = Number(user.credits) || 0;
+      document.getElementById("profile-email").textContent = user.email || "-";
+      document.getElementById("profile-numero").textContent = user.numero || "-";
+      document.getElementById("profile-id").textContent = user.id || "-";
+      document.getElementById("profile-reference").textContent = user.codeReference || "-";
+      document.getElementById("profile-parrain").textContent = user.parrain || "Aucun";
+
+      if (user.dateCreation) {
+        document.getElementById("member-since").textContent =
+          "Membre depuis le " + user.dateCreation + ".";
+      }
+
+      document.getElementById("loading-panel").classList.add("hidden");
+      document.getElementById("profile-view").classList.remove("hidden");
+    }
+
+    document.getElementById("logout-btn").addEventListener("click", BTM.logout);
+
+    document.getElementById("copy-reference").addEventListener("click", function () {
+      const code = document.getElementById("profile-reference").textContent;
+
+      const done = function () {
+        const btn = document.getElementById("copy-reference");
+        btn.textContent = "Code copie !";
+        setTimeout(function () { btn.textContent = "Copier mon code"; }, 1800);
+      };
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(done);
+      } else {
+        const field = document.createElement("textarea");
+        field.value = code;
+        document.body.appendChild(field);
+        field.select();
+        document.execCommand("copy");
+        document.body.removeChild(field);
+        done();
+      }
+    });
+
+    init();
+
+  </script>
+
+</body>
+</html>

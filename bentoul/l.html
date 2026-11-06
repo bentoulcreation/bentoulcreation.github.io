@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lire l'épisode de la formation BentoUL | BENTOUL CREATION</title>
+    <meta name="description" content="Lis l'épisode complet de cette formation BentoUL : astuces Android, PC et informatique expliquées en ligne, avec likes, vues, partage et commentaires.">
+    <meta name="keywords" content="lire épisode, formation informatique, astuces Android, astuces PC, tutoriel, BentoUL, BENTOUL CREATION">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="BENTOUL CREATION">
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="BENTOUL CREATION">
+    <meta property="og:title" content="Lire l'épisode de la formation BentoUL">
+    <meta property="og:description" content="Épisode complet de la formation à lire en ligne sur BENTOUL CREATION.">
+    <meta name="twitter:card" content="summary">
+
+    <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+
+    <main class="main-content" data-app-content>
+        <div id="reader-state" class="state-msg">Chargement de l'épisode...</div>
+
+        <div id="lock-panel" class="login-to-comment hidden">
+            <strong id="lock-title">Épisode réservé</strong><br>
+            Les épisodes à partir du 4e coûtent 1 crédit. Débloque-les pour les lire,
+            ils resteront accessibles sur ton compte.
+            <div style="margin-top:12px">
+                <button type="button" class="send-btn" id="btn-unlock"
+                        style="background:var(--secondary);color:#fff;border:0;border-radius:10px;padding:11px 18px;font-weight:700;cursor:pointer">
+                    Débloquer (1 crédit)
+                </button>
+            </div>
+        </div>
+
+        <article class="reader hidden" id="reader">
+            <a class="back-link" id="back-link" href="/bentoul.html">Retour aux épisodes</a>
+            <h1 id="episode-title"></h1>
+            <p class="reader-sub" id="episode-sub"></p>
+
+            <figure class="episode-figure hidden" id="episode-figure">
+                <img id="episode-image" alt="Image de l'épisode">
+            </figure>
+
+            <div class="reader-body" id="episode-body"></div>
+
+            <div class="stats-bar" id="stats-bar">
+                <button type="button" class="stat-btn" id="btn-like" title="J'aime">
+                    <svg viewBox="0 0 24 24"><path d="M1 21h4V9H1v12zM23 10c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/></svg>
+                    <span id="count-like">0</span>
+                </button>
+                <button type="button" class="stat-btn" id="btn-dislike" title="Je n'aime pas">
+                    <svg viewBox="0 0 24 24"><path d="M15 3H6c-.83 0-1.54.5-1.84 1.22l-3.02 7.05c-.09.23-.14.47-.14.73v2c0 1.1.9 2 2 2h6.31l-.95 4.57-.03.32c0 .41.17.79.44 1.06L9.83 23l6.59-6.59c.36-.36.58-.86.58-1.41V5c0-1.1-.9-2-2-2zM20 9v12h3V9h-3z"/></svg>
+                    <span id="count-dislike">0</span>
+                </button>
+                <span class="stat-btn stat-view" title="Vues">
+                    <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <span id="count-view">0</span>
+                </span>
+                <button type="button" class="stat-btn" id="btn-share" title="Partager">
+                    <svg viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.64 0 1.67 1.33 3 3 3s3-1.33 3-3-1.33-3-3-3z"/></svg>
+                    <span id="count-share">0</span>
+                </button>
+            </div>
+
+            <section class="comments-section">
+                <h2>Commentaires</h2>
+                <div id="comment-zone"></div>
+                <div id="comments-list"></div>
+            </section>
+        </article>
+    </main>
+
+    <script src="/js/config.js"></script>
+    <script src="/js/session.js"></script>
+    <script src="/js/app.js"></script>
+
+    <style>
+        .hidden { display: none !important; }
+
+        /* Marge interne de la page de lecture */
+        .main-content { padding: 2px; }
+        .reader { margin: 2px auto; }
+        .reader-body { padding: 2px; }
+        .comments-section { margin-top: 2px; padding-bottom: 2px; }
+
+        .episode-figure {
+            margin: 2px 0;
+        }
+
+        .episode-figure img {
+            display: block;
+            width: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            border-radius: 14px;
+            border: 1px solid #e6ebef;
+        }
+    </style>
+
+    <script>
+        // bentoul.gs une fois déployé ; en attendant, reprise des données benamoura.
+        const API_URL = window.BTM_CONFIG.BENTOUL_API_URL || window.BTM_CONFIG.BENAMOURA_API_URL;
+        const esc = BTM.escapeHtml;
+
+        async function btmApiGet(action, extra) {
+            const query = new URLSearchParams(Object.assign({ action: action }, extra || {}));
+            const res = await fetch(API_URL + "?" + query);
+            if (!res.ok) throw new Error("Serveur indisponible.");
+            return await res.json();
+        }
+
+        async function btmApiPost(payload) {
+            const res = await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error("Serveur indisponible.");
+            return await res.json();
+        }
+
+        function getIdentity() {
+            const session = BTM.getSession();
+            if (session && session.user && session.user.username) {
+                return String(session.user.username).toLowerCase();
+            }
+            let visitor = localStorage.getItem("bentoulcreation.visitor.v1");
+            if (!visitor) {
+                visitor = "VISITEUR-" + Math.random().toString(36).slice(2, 10) +
+                    Date.now().toString(36);
+                localStorage.setItem("bentoulcreation.visitor.v1", visitor);
+            }
+            return visitor.toLowerCase();
+        }
+
+        async function findEpisode(episodeId, seriesId) {
+            const ids = seriesId
+                ? [seriesId]
+                : (await btmApiGet("getSeries")).data.map(function (s) { return s.id; });
+
+            for (const id of ids) {
+                const result = await btmApiGet("getEpisodes", { seriesId: id });
+                const published = (result.data || []).filter(function (ep) {
+                    return String(ep.statut || "Publié") === "Publié";
+                });
+                const index = published.findIndex(function (ep) {
+                    return String(ep.id) === String(episodeId);
+                });
+                if (index >= 0) return { episode: published[index], seriesId: id, index: index };
+            }
+
+            return null;
+        }
+
+        function setCounts(state) {
+            document.getElementById("count-like").textContent = Number(state.likes) || 0;
+            document.getElementById("count-dislike").textContent = Number(state.dislikes) || 0;
+            document.getElementById("count-share").textContent = Number(state.shares) || 0;
+            document.getElementById("count-view").textContent = Number(state.views) || 0;
+
+            const like = document.getElementById("btn-like");
+            const dislike = document.getElementById("btn-dislike");
+            like.classList.toggle("active-like", state.myVote === "like");
+            dislike.classList.toggle("active-dislike", state.myVote === "dislike");
+        }
+
+        async function sendVote(vote) {
+            const session = BTM.getSession();
+            if (!session || !session.user || !session.user.username) {
+                BTM.gotoLogin();
+                return;
+            }
+
+            const buttons = [document.getElementById("btn-like"), document.getElementById("btn-dislike")];
+            buttons.forEach(function (b) { b.disabled = true; });
+            try {
+                const result = await btmApiPost({
+                    type: "vote",
+                    episodeId: currentEpisodeId,
+                    identity: getIdentity(),
+                    vote: vote
+                });
+                if (result.status === "success") {
+                    setCounts(result);
+                } else if (result.message) {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert("Envoi du vote impossible : " + error.message);
+            } finally {
+                buttons.forEach(function (b) { b.disabled = false; });
+            }
+        }
+
+        async function registerView() {
+            try {
+                const result = await btmApiPost({
+                    type: "view",
+                    episodeId: currentEpisodeId,
+                    identity: getIdentity()
+                });
+                if (result.status === "success") setCounts(result);
+            } catch (error) {
+                // vue non comptabilisée si l'API déployée est ancienne : sans blocage
+            }
+        }
+
+        async function shareEpisode() {
+            const url = location.href;
+            const title = document.getElementById("episode-title").textContent;
+            try {
+                if (navigator.share) {
+                    await navigator.share({ title: title, url: url });
+                } else {
+                    await navigator.clipboard.writeText(url);
+                }
+                const result = await btmApiPost({ type: "share", episodeId: currentEpisodeId });
+                if (result.status === "success") setCounts(result);
+            } catch (error) {
+                // partage annulé par l'utilisateur : on ne compte pas
+            }
+        }
+
+        async function loadComments() {
+            const list = document.getElementById("comments-list");
+            try {
+                const result = await btmApiGet("getComments", { episodeId: currentEpisodeId });
+                const comments = result.data || [];
+                if (!comments.length) {
+                    list.innerHTML = '<p class="comments-empty">Aucun commentaire pour le moment.</p>';
+                    return;
+                }
+                list.innerHTML = comments.map(function (c) {
+                    return '<div class="comment-item">' +
+                        '<div class="c-head"><strong>' + esc(c.pseudo) + '</strong>' +
+                        '<span>' + esc(c.date || "") + '</span></div>' +
+                        '<p>' + esc(c.message) + '</p></div>';
+                }).join("");
+            } catch (error) {
+                list.innerHTML = '<p class="comments-empty">Commentaires indisponibles pour le moment.</p>';
+            }
+        }
+
+        function renderCommentZone() {
+            const zone = document.getElementById("comment-zone");
+            const session = BTM.getSession();
+
+            if (!session || !session.user || !session.user.username) {
+                zone.innerHTML =
+                    '<div class="login-to-comment">Seuls les utilisateurs connectés peuvent commenter. ' +
+                    '<a href="' + window.BTM_CONFIG.LOGIN_PAGE + '">Connecte-toi</a> pour participer.</div>';
+                return;
+            }
+
+            zone.innerHTML =
+                '<form class="comment-form" id="comment-form">' +
+                '<textarea id="comment-message" maxlength="500" placeholder="Ton commentaire..." required></textarea>' +
+                '<button type="submit" class="send-btn" id="send-comment">Publier</button>' +
+                '</form>';
+
+            document.getElementById("comment-form").addEventListener("submit", async function (event) {
+                event.preventDefault();
+                const textarea = document.getElementById("comment-message");
+                const button = document.getElementById("send-comment");
+                const message = textarea.value.trim();
+                if (!message) return;
+
+                button.disabled = true;
+                try {
+                    const result = await btmApiPost({
+                        type: "comment",
+                        episodeId: currentEpisodeId,
+                        pseudo: session.user.username,
+                        message: message
+                    });
+                    if (result.status === "success") {
+                        textarea.value = "";
+                        await loadComments();
+                    } else {
+                        alert(result.message || "Commentaire non enregistré.");
+                    }
+                } catch (error) {
+                    alert("Envoi du commentaire impossible : " + error.message);
+                } finally {
+                    button.disabled = false;
+                }
+            });
+        }
+
+        let currentEpisodeId = "";
+        let currentSeriesId = "";
+        const FREE_EPISODES = 3;
+
+        async function loadUnlocks() {
+            const unlocked = new Set();
+            const session = BTM.getSession();
+            if (!session) return unlocked;
+            try {
+                const result = await BTM.api({ action: "getUnlocks", token: session.token });
+                if (result.success && Array.isArray(result.episodes)) {
+                    result.episodes.forEach(function (id) { unlocked.add(String(id)); });
+                }
+            } catch (error) {
+                // API déployée sans getUnlocks : verrouillage conservateur
+            }
+            return unlocked;
+        }
+
+        async function showLockPanel(match) {
+            const state = document.getElementById("reader-state");
+            state.classList.add("hidden");
+            document.getElementById("reader").classList.add("hidden");
+
+            const panel = document.getElementById("lock-panel");
+            panel.classList.remove("hidden");
+            currentEpisodeId = match.episode.id;
+            currentSeriesId = match.seriesId;
+
+            const cost = Number(match.episode.coutCredits) || 1;
+            const session = BTM.getSession();
+            const btn = document.getElementById("btn-unlock");
+            btn.textContent = "Débloquer (" + cost + (cost > 1 ? " crédits)" : " crédit)");
+
+            if (!session) {
+                btn.textContent = "Se connecter pour débloquer";
+                btn.onclick = BTM.gotoLogin;
+                return;
+            }
+
+            btn.onclick = async function () {
+                const credits = Number(session.user && session.user.credits) || 0;
+                if (!confirm("Débloquer cet épisode pour " + cost + " crédit(s) ? (il te reste " + credits + " crédit(s))")) {
+                    return;
+                }
+                btn.disabled = true;
+                try {
+                    const result = await BTM.api({
+                        action: "unlockEpisode",
+                        token: session.token,
+                        episodeId: match.episode.id
+                    });
+                    if (result.success) {
+                        await BTM.refreshUser();
+                        location.reload();
+                    } else if (result.code === "SESSION_INVALID") {
+                        BTM.clearSession();
+                        BTM.gotoLogin();
+                    } else {
+                        alert(result.message || "Déblocage impossible pour le moment.");
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    alert("Déblocage impossible : " + error.message);
+                    btn.disabled = false;
+                }
+            };
+        }
+
+        async function init() {
+            const params = new URLSearchParams(location.search);
+            const episodeId = params.get("e");
+
+            if (!episodeId) {
+                location.replace(window.BTM_CONFIG.BENTOUL_SERIES_PAGE);
+                return;
+            }
+            currentEpisodeId = episodeId;
+
+            const state = document.getElementById("reader-state");
+
+            try {
+                const match = await findEpisode(episodeId, params.get("s"));
+
+                if (!match) {
+                    state.className = "state-msg error";
+                    state.textContent = "Épisode introuvable.";
+                    return;
+                }
+
+                // Le backend bentoul fournit gratuit/verrouille/achete ; à défaut on
+                // retombe sur la règle des 3 premiers épisodes gratuits.
+                const ep = match.episode;
+                const paid = typeof ep.gratuit === "boolean" ? !ep.gratuit
+                    : (typeof ep.verrouille === "boolean" ? ep.verrouille : match.index >= FREE_EPISODES);
+
+                if (paid && ep.achete !== true) {
+                    const unlocked = await loadUnlocks();
+                    if (!unlocked.has(String(episodeId))) {
+                        await showLockPanel(match);
+                        return;
+                    }
+                }
+
+                const episode = match.episode;
+
+                let seriesName = "";
+                const seriesResult = await btmApiGet("getSeries");
+                const series = (seriesResult.data || []).find(function (s) {
+                    return String(s.id) === String(match.seriesId);
+                });
+                if (series) seriesName = series.titre || "";
+
+                document.getElementById("back-link").href =
+                    window.BTM_CONFIG.BENTOUL_EPISODES_PAGE + "?s=" + encodeURIComponent(match.seriesId);
+                document.getElementById("episode-title").textContent = episode.titre || "";
+                document.getElementById("episode-sub").textContent =
+                    seriesName ? "Un épisode de la série " + seriesName : "";
+                document.title = (episode.titre || "Épisode") + " - formation " + (seriesName || "BentoUL") + " | BENTOUL CREATION";
+                const descMeta = document.querySelector('meta[name="description"]');
+                if (descMeta) descMeta.setAttribute("content",
+                    "Lis l'épisode « " + (episode.titre || "") + " » de la formation " + (seriesName || "") +
+                    " : astuces informatique, Android et PC expliquées en ligne.");
+
+                const bodyHtml = episode.contenu || "<p>Cet épisode n'a pas encore de contenu.</p>";
+                document.getElementById("episode-body").innerHTML = bodyHtml;
+
+                // L'image n'est ajoutée que si le contenu n'en contient pas déjà une (jamais deux fois).
+                if (episode.image && bodyHtml.indexOf("<img") === -1) {
+                    document.getElementById("episode-image").src = episode.image;
+                    document.getElementById("episode-figure").classList.remove("hidden");
+                }
+
+                state.classList.add("hidden");
+                document.getElementById("reader").classList.remove("hidden");
+
+                setCounts(episode);
+                renderCommentZone();
+                loadComments();
+
+                document.getElementById("btn-like").addEventListener("click", function () {
+                    sendVote("like");
+                });
+                document.getElementById("btn-dislike").addEventListener("click", function () {
+                    sendVote("dislike");
+                });
+                document.getElementById("btn-share").addEventListener("click", shareEpisode);
+
+                registerView();
+                try {
+                    const result = await btmApiGet("getEpisodeState", {
+                        episodeId: episodeId,
+                        identity: getIdentity()
+                    });
+                    if (result.status === "success") setCounts(result);
+                } catch (error) {
+                    // action absente de l'API déployée : les compteurs de getEpisodes restent affichés
+                }
+
+            } catch (error) {
+                state.className = "state-msg error";
+                state.textContent = "Impossible de charger l'épisode : " + error.message;
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
