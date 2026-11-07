@@ -39,7 +39,7 @@ h2{
     justify-content: space-between;
     align-items: center;
     z-index: 1000;
-    boder:3px solid red;
+   
 }
 
 .nav-menu ul {
@@ -190,10 +190,11 @@ h2{
 /* ESPACE PUB (activé à la visibilité par app.js) */
 .ad-slot {
     min-height: 60px;
-    margin: 10px auto 70px;
+    margin: 10px auto 2px;
     display: flex;
     justify-content: center;
     align-items: center;
+    border: 2px solid gray;
 }
 
 .ad-slot iframe {
