@@ -139,6 +139,7 @@ h2{
 /* CONTENU PRINCIPAL */
 .main-content {
     padding: 30px;
+    margin-top: -60px;
     min-height: calc(100vh - var(--header-height) - var(--footer-height));
 }
 
@@ -190,7 +191,7 @@ h2{
 /* ESPACE PUB (activé à la visibilité par app.js) */
 .ad-slot {
     min-height: 60px;
-    margin: 10px auto 2px;
+    margin: 80px auto 2px;
     display: flex;
     justify-content: center;
     align-items: center;
