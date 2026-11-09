@@ -1,356 +1,1359 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>BENTOUL CREATION | Histoires d'amour et astuces Android & PC</title>
-    <meta name="description" content="BENTOUL CREATION : lis les séries Benamoura (amour, histoires, sentiment) et les formations BentoUL (informatique, astuces Android et PC). Connexion, crédits et déblocage d'épisodes.">
-    <meta name="keywords" content="BENTOUL CREATION, séries amour, histoires sentimentales, benamoura, astuces android, astuces pc, informatique, tutoriels, lectures en ligne">
-    <meta name="robots" content="index, follow">
-    <meta name="author" content="BENTOUL CREATION">
-    <!-- Google Search Console : remplace ta-domaine.com par ton nom de domaine,
-         puis colle ici la balise google-site-verification fournie par la Search Console. -->
-    <!-- <meta name="google-site-verification" content="CODE"> -->
+    <title>BENTOUL CREATION - Nos Services</title>
 
-    <meta property="og:type" content="website">
-    <meta property="og:site_name" content="BENTOUL CREATION">
-    <meta property="og:title" content="BENTOUL CREATION | Histoires d'amour et astuces Android & PC">
-    <meta property="og:description" content="Deux univers : Benamoura, séries d'amour et d'histoires à lire, et BentoUL, informatique et astuces pour Android et PC.">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="BENTOUL CREATION">
-    <meta name="twitter:description" content="Séries d'amour (Benamoura) et astuces Android & PC (BentoUL).">
+    <link rel="stylesheet" href="tab.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 82px 20px 86px;
+            background: #f5f7fa;
+            color: #222;
+            overflow-x: hidden;
+        }
 
-    <link rel="stylesheet" href="/css/app.css">
-    <link rel="stylesheet" href="/css/home.css">
+        .site-header {
+            position: fixed;
+            z-index: 1000;
+            top: 0;
+            right: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 62px;
+            padding: 0 20px;
+            background: #fff;
+            border-bottom: 1px solid #dbe3ee;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, .08);
+        }
 
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "BENTOUL CREATION",
-      "description": "Plateforme de lecture : séries d'amour Benamoura et formations informatique BentoUL.",
-      "inLanguage": "fr"
-    }
-    </script>
+        .menu-toggle {
+            border: 0;
+            background: transparent;
+            color: #2563eb;
+            cursor: pointer;
+            font-size: 1.6rem;
+        }
+
+        .site-title {
+            font-weight: 700;
+            color: #1d4ed8;
+        }
+
+        .site-credits {
+            padding: 8px 12px;
+            border: 1px solid #94a3b8;
+            border-radius: 12px;
+            background: #e5e7eb;
+            color: #1f2937;
+            font-size: .9rem;
+        }
+
+        .sidebar-backdrop {
+            position: fixed;
+            z-index: 1090;
+            inset: 0;
+            background: rgba(15, 23, 42, .35);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s ease;
+        }
+
+        .sidebar {
+            position: fixed;
+            z-index: 1100;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            width: min(280px, 82vw);
+            padding: 78px 18px 24px;
+            background: #fff;
+            box-shadow: 8px 0 24px rgba(15, 23, 42, .18);
+            transform: translateX(-105%);
+            transition: transform .25s ease;
+        }
+
+        .sidebar.open {
+            transform: translateX(0);
+        }
+
+        .sidebar-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .sidebar h2 {
+            margin: 0 0 20px;
+            color: #1d4ed8;
+        }
+
+        .sidebar .tab-btn {
+            display: block;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 14px 16px;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .sidebar .tab-btn.active,
+        .sidebar .tab-btn:hover {
+            background: #eff6ff;
+        }
+
+        .tabs-nav {
+            position: fixed;
+            z-index: 1000;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            display: flex;
+            justify-content: flex-start;
+            margin: 0;
+            padding: 8px 12px;
+            overflow: hidden;
+            background: #fff;
+            border-top: 1px solid #dbe3ee;
+            box-shadow: 0 -2px 10px rgba(15, 23, 42, .08);
+        }
+
+        .tabs {
+            max-width: 900px;
+            margin: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .tabs-nav {
+            order: 2;
+        }
+
+        .services-grid {
+            display: flex;
+            gap: 18px;
+            margin-top: 20px;
+            padding: 4px 2px 14px;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+            scrollbar-width: thin;
+        }
+
+        .service-card {
+            flex: 0 0 min(320px, 85vw);
+            display: flex;
+            flex-direction: column;
+            background: white;
+            padding: 22px;
+            border-radius: 14px;
+            border: 1px solid #e5e7eb;
+            scroll-snap-align: start;
+            box-sizing: border-box;
+        }
+
+        .service-icon {
+            font-size: 35px;
+        }
+
+        .service-card h3 {
+            color: #2563eb;
+        }
+
+        .service-card p {
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .service-card ul {
+            padding-left: 20px;
+            line-height: 1.9;
+            color: #555;
+        }
+
+        .service-card a {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 11px 16px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+        }
+
+        .service-card a {
+            align-self: flex-start;
+        }
+
+        .services-intro {
+            margin-bottom: 22px;
+            line-height: 1.6;
+            color: #5b6472;
+        }
+
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .pricing-card {
+            display: flex;
+            flex-direction: column;
+            padding: 22px 18px;
+            border: 1px solid #dbe3ee;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, .06);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid #2563eb;
+            box-shadow: 0 12px 24px rgba(37, 99, 235, .16);
+        }
+
+        .pricing-badge {
+            align-self: flex-start;
+            margin-bottom: 12px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: .75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .pricing-card h3 {
+            margin: 0 0 6px;
+            color: #1d4ed8;
+        }
+
+        .pricing-card .price {
+            margin: 0 0 16px;
+            color: #0f172a;
+            font-size: 1.7rem;
+            font-weight: 800;
+        }
+
+        .pricing-card .price small {
+            font-size: .8rem;
+            font-weight: 500;
+        }
+
+        .pricing-features {
+            display: grid;
+            gap: 10px;
+            margin: 0 0 20px;
+            padding: 0;
+            list-style: none;
+            color: #4b5563;
+            line-height: 1.45;
+        }
+
+        .pricing-features li::before {
+            margin-right: 7px;
+            color: #16a34a;
+            content: "✓";
+            font-weight: 700;
+        }
+
+        .pricing-action {
+            display: block;
+            width: 100%;
+            border: 0;
+            cursor: pointer;
+            margin-top: auto;
+            padding: 12px 14px;
+            border-radius: 8px;
+            background: #2563eb;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .pricing-action:hover {
+            background: #1d4ed8;
+        }
+
+        .series-panel-intro {
+            margin-bottom: 18px;
+            color: #5b6472;
+            line-height: 1.6;
+        }
+
+        .series-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .series-card {
+            overflow: hidden;
+            border: 1px solid #dbe3ee;
+            border-radius: 14px;
+            background: #fff;
+            box-shadow: 0 7px 16px rgba(15, 23, 42, .06);
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .series-card:hover,
+        .series-card:focus-visible {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 22px rgba(15, 23, 42, .12);
+            outline: none;
+        }
+
+        .series-card-image {
+            position: relative;
+            height: 220px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #dbeafe, #eff6ff);
+            color: #2563eb;
+            font-size: 2rem;
+        }
+
+        .series-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .series-card-image .series-placeholder {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            place-items: center;
+        }
+
+        .series-card-overlay {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            padding: 32px 12px 12px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, .82));
+            color: #fff;
+        }
+
+        .series-card-overlay h3 {
+            display: -webkit-box;
+            overflow: hidden;
+            margin: 0 0 4px;
+            color: #fff;
+            font-size: 1rem;
+            line-height: 1.25;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 1;
+        }
+
+        .series-card-overlay .series-card-description {
+            display: -webkit-box;
+            overflow: hidden;
+            color: #f8fafc;
+            font-size: .78rem;
+            line-height: 1.35;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .series-card-content {
+            padding: 14px;
+        }
+
+        .series-card p {
+            margin: 0;
+            color: #64748b;
+            line-height: 1.45;
+        }
+
+        .series-empty {
+            grid-column: 1 / -1;
+            padding: 24px;
+            border-radius: 12px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            text-align: center;
+        }
+
+        .series-view[hidden],
+        .episodes-view[hidden],
+        .episode-view[hidden] {
+            display: none;
+        }
+
+        .series-back {
+            margin-bottom: 16px;
+            padding: 9px 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #fff;
+            color: #1d4ed8;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .series-card-description,
+        .episode-content {
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .series-card-description p,
+        .episode-content p {
+            margin: 0 0 8px;
+        }
+
+        .series-card-description ul,
+        .episode-content ul {
+            padding-left: 20px;
+        }
+
+        .series-meta,
+        .episode-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 12px;
+            color: #64748b;
+            font-size: .8rem;
+        }
+
+        .series-open {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 14px;
+            padding: 9px 11px;
+            border: 0;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .episode-list {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .episode-card {
+            overflow: hidden;
+            border: 1px solid #dbe3ee;
+            border-radius: 12px;
+            background: #fff;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .episode-card:hover,
+        .episode-card:focus-visible {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 22px rgba(15, 23, 42, .12);
+            outline: none;
+        }
+
+        .episode-card-image {
+            position: relative;
+            height: 190px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #dbeafe, #eff6ff);
+        }
+
+        .episode-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .episode-card-image .episode-placeholder {
+            display: grid;
+            width: 100%;
+            height: 100%;
+            place-items: center;
+            color: #2563eb;
+            font-size: 2rem;
+        }
+
+        .episode-card-overlay {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            padding: 30px 11px 10px;
+            background: linear-gradient(transparent, rgba(0, 0, 0, .84));
+            color: #fff;
+        }
+
+        .episode-card h3 {
+            margin: 0 0 8px;
+            color: #fff;
+            display: -webkit-box;
+            overflow: hidden;
+            font-size: .95rem;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .episode-card .episode-content {
+            color: #f8fafc;
+            font-size: .76rem;
+            line-height: 1.35;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+
+        .episode-card-content {
+            padding: 12px;
+        }
+
+        .episode-open {
+            display: block;
+            margin-top: 12px;
+            padding: 9px 12px;
+            border: 0;
+            border-radius: 8px;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .episode-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .episode-action {
+            padding: 5px 7px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: #f8fafc;
+            color: #475569;
+            cursor: pointer;
+            font-size: .7rem;
+        }
+
+        .episode-reader {
+            padding: 20px;
+            border: 1px solid #dbe3ee;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .episode-reader h2 {
+            margin-top: 0;
+            color: #1d4ed8;
+        }
+
+        .episode-reader-image {
+            width: 100%;
+            max-height: 300px;
+            margin-bottom: 16px;
+            border-radius: 10px;
+            object-fit: cover;
+        }
+
+        .reader-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 18px 0;
+        }
+
+        .reader-action {
+            padding: 9px 11px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #334155;
+            cursor: pointer;
+        }
+
+        .comments-box {
+            margin-top: 22px;
+            padding-top: 18px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .comments-box h3 {
+            margin-top: 0;
+        }
+
+        .comment-form {
+            display: flex;
+            gap: 8px;
+        }
+
+        .comment-form textarea {
+            flex: 1;
+            min-height: 52px;
+            resize: vertical;
+            padding: 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        .comment-form button {
+            align-self: flex-end;
+            padding: 10px 12px;
+            border: 0;
+            border-radius: 8px;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        .comment-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eef2f7;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .account-box {
+            max-width: 560px;
+            margin: auto;
+            padding: 22px;
+            border: 1px solid #dbe3ee;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, .06);
+        }
+
+        .account-switch {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin-bottom: 18px;
+            padding: 4px;
+            border-radius: 9px;
+            background: #eff6ff;
+        }
+
+        .account-switch button {
+            padding: 10px;
+            border: 0;
+            border-radius: 7px;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .account-switch button.active {
+            background: #fff;
+            color: #1d4ed8;
+            box-shadow: 0 2px 6px rgba(15, 23, 42, .08);
+        }
+
+        .account-form {
+            display: grid;
+            gap: 12px;
+        }
+
+        .account-form label {
+            display: grid;
+            gap: 6px;
+            color: #334155;
+            font-weight: 700;
+        }
+
+        .account-form input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        .account-form button,
+        .account-logout {
+            padding: 12px;
+            border: 0;
+            border-radius: 8px;
+            background: #2563eb;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+        }
+
+        .account-message {
+            min-height: 20px;
+            color: #b91c1c;
+            font-size: .9rem;
+        }
+
+        .account-profile {
+            display: grid;
+            gap: 10px;
+        }
+
+        .account-detail {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .account-detail strong {
+            color: #1d4ed8;
+        }
+
+        .account-logout {
+            margin-top: 16px;
+            background: #dc2626;
+        }
+
+        .service-modal-backdrop {
+            position: fixed;
+            z-index: 1200;
+            inset: 0;
+            display: grid;
+            padding: 18px;
+            place-items: center;
+            background: rgba(15, 23, 42, .55);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .2s ease;
+        }
+
+        .service-modal-backdrop.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .service-modal {
+            width: min(480px, 100%);
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 24px;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 20px 50px rgba(15, 23, 42, .25);
+        }
+
+        .service-modal-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .service-modal h2 {
+            margin: 0 0 5px;
+            color: #1d4ed8;
+        }
+
+        .service-modal-price {
+            margin: 0 0 18px;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        .service-modal-close {
+            border: 0;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .service-modal-list {
+            margin: 0 0 18px;
+            padding-left: 20px;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .service-modal label {
+            display: block;
+            margin-bottom: 7px;
+            color: #1f2937;
+            font-weight: 700;
+        }
+
+        .service-modal textarea {
+            width: 100%;
+            min-height: 100px;
+            box-sizing: border-box;
+            resize: vertical;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+        }
+
+        .service-modal-submit {
+            width: 100%;
+            margin-top: 14px;
+            padding: 12px;
+            border: 0;
+            border-radius: 8px;
+            background: #16a34a;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 700;
+        }
+
+        @media (min-width: 1000px) {
+            .services-grid {
+                overflow-x: visible;
+            }
+
+            .service-card {
+                flex: 1 1 0;
+            }
+        }
+
+        .intro {
+            line-height: 1.7;
+        }
+
+        .home-hero {
+            display: grid;
+            grid-template-columns: 1.05fr .95fr;
+            gap: 20px;
+            align-items: center;
+            min-height: 270px;
+            padding: 28px;
+            margin-bottom: 22px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(219, 234, 254, .95), rgba(255, 255, 255, .96)),
+                radial-gradient(circle at 75% 20%, #bfdbfe, transparent 42%);
+            color: white;
+            box-shadow: 0 12px 28px rgba(37, 99, 235, .18);
+        }
+
+        .home-hero h2 {
+            margin: 0 0 10px;
+            font-size: clamp(1.7rem, 4vw, 2.4rem);
+        }
+
+        .home-hero p {
+            max-width: 680px;
+            margin: 0;
+            line-height: 1.7;
+            color: #374151;
+        }
+
+        .home-hero-copy h2 {
+            color: #050505;
+        }
+
+        .home-hero-image {
+            display: grid;
+            min-height: 220px;
+            place-items: center;
+            border: 1px solid #2563eb;
+            background: #4778ca;
+            color: white;
+            font-size: clamp(1.8rem, 5vw, 3rem);
+            text-align: center;
+        }
+
+        .home-cards {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            align-items: start;
+        }
+
+        .home-card {
+            display: flex;
+            flex-direction: column;
+            padding: 2px;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 8px 18px rgba(15, 23, 42, .06);
+            transition: transform .2s ease, box-shadow .2s ease;
+        }
+
+        .home-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 14px 24px rgba(15, 23, 42, .12);
+        }
+
+        .home-card-icon {
+            display: inline-grid;
+            width: 48px;
+            height: 48px;
+            place-items: center;
+            margin-bottom: 12px;
+            border-radius: 14px;
+            background: #eff6ff;
+            font-size: 25px;
+        }
+
+        .home-card h3 {
+            margin: 0 0 9px;
+            color: #1d4ed8;
+            font-size: 1.15rem;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+        }
+
+        .home-card p {
+            margin: 0;
+            line-height: 1.65;
+            color: #5b6472;
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 3;
+        }
+
+        .home-card-action {
+            display: grid;
+            width: 48px;
+            height: 30px;
+            place-items: center;
+            align-self: flex-end;
+            margin-top: 14px;
+            border: 1px solid #0964d3;
+            border-radius: 6px;
+            background: #f8fafc;
+            color: #111;
+            font-size: 1rem;
+            text-decoration: none;
+        }
+
+        .home-note {
+            margin-top: 20px;
+            padding: 15px 18px;
+            border-left: 4px solid #2563eb;
+            border-radius: 8px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 0;
+                padding-top: 76px;
+                padding-bottom: 76px;
+            }
+
+            .site-header {
+                padding: 0 10px;
+            }
+
+            .site-title {
+                font-size: .86rem;
+            }
+
+            .site-credits {
+                padding: 7px 8px;
+                font-size: .75rem;
+            }
+
+            .tabs {
+                width: 100%;
+            }
+
+            .tab-content {
+                padding: 14px 16px 24px;
+                min-width: 0;
+            }
+
+            .tabs-nav {
+                display: grid;
+                grid-template-columns: repeat(6, minmax(0, 1fr));
+                gap: 0;
+                padding: 5px 2px;
+            }
+
+            .tabs-nav .tab-btn {
+                min-width: 0;
+                overflow: hidden;
+                padding: 10px 2px;
+                font-size: .68rem;
+                text-overflow: ellipsis;
+            }
+
+            .home-hero {
+                grid-template-columns: minmax(0, 1.05fr) minmax(0, .95fr);
+                gap: 8px;
+                min-height: 0;
+                margin: 0 -16px 18px;
+                padding: 22px 10px 18px 28px;
+                border-radius: 0;
+            }
+
+            .home-hero-image {
+                min-height: 190px;
+                font-size: 1.7rem;
+            }
+
+            .home-hero h2 {
+                font-size: 1.65rem;
+                line-height: 1.12;
+            }
+
+            .home-hero p {
+                font-size: .9rem;
+                line-height: 1.45;
+            }
+
+            .home-cards {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .home-card {
+                padding: 14px 12px;
+                border-radius: 12px;
+            }
+
+            .home-card-icon {
+                width: 38px;
+                height: 38px;
+                margin-bottom: 8px;
+                border-radius: 10px;
+                font-size: 20px;
+            }
+
+            .home-card h3 {
+                font-size: .95rem;
+                line-height: 1.25;
+            }
+
+            .home-card p {
+                font-size: .82rem;
+                line-height: 1.45;
+            }
+
+            .pricing-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .series-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .episode-list {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+
+            .episode-card-image {
+                height: 135px;
+            }
+
+            .series-card-content,
+            .episode-card-content {
+                padding: 8px;
+            }
+
+            .series-meta,
+            .episode-meta {
+                gap: 5px;
+                font-size: .65rem;
+            }
+
+            .series-card-image {
+                height: 170px;
+            }
+
+            .series-card-overlay {
+                padding: 26px 9px 9px;
+            }
+
+            .series-card-overlay h3 {
+                font-size: .85rem;
+            }
+
+            .series-card-overlay .series-card-description {
+                font-size: .7rem;
+            }
+
+            .comment-form {
+                flex-direction: column;
+            }
+
+            .comment-form button {
+                align-self: stretch;
+            }
+
+        }
+    </style>
 </head>
+
 <body>
 
-    <main class="main-content home" data-app-content>
+<header class="site-header">
+    <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu" aria-expanded="false">☰</button>
+    <a class="site-title" href="#/home">BENTOUL CREATION</a>
+    <a class="site-credits" href="#/account" aria-label="Voir mon compte et mes crédits">0 crédits</a>
+</header>
 
-        <!-- HERO -->
-        <section class="hero" aria-label="Bienvenue">
-            <div class="hero-bg" aria-hidden="true">
-                <span class="orb orb-a"></span>
-                <span class="orb orb-b"></span>
-                <span class="orb orb-c"></span>
-                <span class="grain"></span>
+<div class="tabs">
+
+    <!-- Navigation -->
+    <div class="tabs-nav">
+
+        <button class="tab-btn active" data-tab="home">
+            Accueil
+        </button>
+
+        <button class="tab-btn" data-tab="services">
+            Services
+        </button>
+
+        <button class="tab-btn" data-tab="contact">
+            Contact
+        </button>
+
+        <button class="tab-btn" data-tab="bentoul">
+            Bentoul
+        </button>
+
+        <button class="tab-btn" data-tab="benamoura">
+            Benamoura
+        </button>
+
+        <button class="tab-btn" data-tab="account">
+            Compte
+        </button>
+
+    </div>
+
+    <!-- ACCUEIL -->
+    <div class="tab-content active" data-content="home">
+        <section class="home-hero">
+            <div class="home-hero-copy">
+                <h2>Apprenez<br>l'informatique à domicile</h2>
+                <p>
+                    Des cours simples, pratiques et adaptés aux débutants pour
+                    apprendre à utiliser l'ordinateur, créer des sites web et
+                    développer vos compétences numériques.
+                </p>
             </div>
-
-            <div class="hero-inner">
-                <div class="hero-copy">
-                    <span class="hero-eyebrow reveal">
-                        <span class="pulse-dot"></span> Plateforme de lecture nouvelle génération
-                    </span>
-                    <h1 class="hero-title reveal d1">
-                        Deux univers.<br><span class="grad-text">Une seule app.</span>
-                    </h1>
-                    <p class="hero-lead reveal d2">
-                        Des histoires d'amour qui captivent avec <strong>Benamoura</strong>,
-                        des astuces Android &amp; PC qui font gagner du temps avec <strong>BentoUL</strong>.
-                        Lis, apprends, progresse — où que tu sois.
-                    </p>
-
-                    <div class="hero-actions reveal d3">
-                        <a class="btn btn-primary" href="/benamoura.html">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            Lire les histoires
-                        </a>
-                        <a class="btn btn-ghost" href="/bentoul.html">
-                            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
-                            Astuces tech
-                        </a>
-                    </div>
-
-                    <ul class="hero-trust reveal d4">
-                        <li>
-                            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M9 16.2l-3.5-3.5L4 14.2 9 19.2 20 8.2l-1.4-1.4z"/></svg>
-                            3 épisodes gratuits par série
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M9 16.2l-3.5-3.5L4 14.2 9 19.2 20 8.2l-1.4-1.4z"/></svg>
-                            Un seul compte partout
-                        </li>
-                        <li>
-                            <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M9 16.2l-3.5-3.5L4 14.2 9 19.2 20 8.2l-1.4-1.4z"/></svg>
-                            Optimisé mobile
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Aperçu app (maquette vivante) -->
-                <div class="hero-stage reveal d2" aria-hidden="true">
-                    <div class="device">
-                        <div class="device-notch"></div>
-                        <div class="device-screen">
-                            <div class="mini-top">
-                                <span class="mini-logo">B</span>
-                                <span class="mini-title">BENTOUL CREATION</span>
-                                <span class="mini-credit">10 <i>cr</i></span>
-                            </div>
-                            <div class="mini-hero">
-                                <span class="mini-tag">À la une</span>
-                                <strong>Choisis ton univers</strong>
-                            </div>
-                            <div class="mini-card mini-tech">
-                                <span class="mini-ico">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
-                                </span>
-                                <span class="mini-meta"><b>BentoUL</b><small>Informatique · Android · PC</small></span>
-                            </div>
-                            <div class="mini-card mini-life">
-                                <span class="mini-ico">
-                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                                </span>
-                                <span class="mini-meta"><b>Benamoura</b><small>Amour · Histoires · Séries</small></span>
-                            </div>
-                            <div class="mini-ep">
-                                <span class="mini-thumb"></span>
-                                <span class="mini-meta"><b>Épisode 1 — Le début</b><small>Gratuit · 4 min de lecture</small></span>
-                                <span class="mini-play">
-                                    <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-                                </span>
-                            </div>
-                            <div class="mini-nav">
-                                <span class="on"></span><span></span><span></span><span></span>
-                            </div>
-                        </div>
-                    </div>
-                    <span class="float-chip chip-like">
-                        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        +128
-                    </span>
-                    <span class="float-chip chip-free">3 épisodes offerts</span>
-                </div>
-            </div>
-
-            <div class="hero-stats reveal d4">
-                <div class="stat"><b data-count="2">2</b><span>univers</span></div>
-                <div class="stat-sep"></div>
-                <div class="stat"><b id="stat-series" data-count="0">—</b><span>séries en ligne</span></div>
-                <div class="stat-sep"></div>
-                <div class="stat"><b data-count="100">100</b><span>% mobile</span></div>
-            </div>
+            <div class="home-hero-image">Votre image ici</div>
         </section>
 
-        <!-- UNIVERS : 2 cartes, 2 colonnes (min et max) -->
-        <section class="section univers" aria-label="Nos deux univers">
-            <header class="section-head reveal">
-                <span class="section-kicker">Explorer</span>
-                <h2>Choisis ton univers</h2>
-                <p>Deux ambiances, une même expérience de lecture fluide et moderne.</p>
-            </header>
+        <div class="home-cards">
+            <article class="home-card">
+                <h3>Cours informatique à domicile</h3>
+                <p>
+                    Apprenez l'informatique depuis chez vous avec une formation
+                    adaptée à votre niveau.
+                </p>
+                <a class="home-card-action" href="#services" aria-label="Voir les cours">→</a>
+            </article>
 
-            <div class="catalog-grid">
-                <a class="catalog-card card-tech reveal" href="/bentoul.html">
-                    <div class="card-cover">
-                        <span class="cover-pattern"></span>
-                        <span class="cover-ico">
-                            <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><path d="M20 18c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/></svg>
-                        </span>
-                        <span class="cover-count" id="count-tech">…</span>
-                    </div>
-                    <div class="card-body">
-                        <span class="card-tag tag-tech">Tech</span>
-                        <h3>BentoUL</h3>
-                        <p>Informatique et astuces pour Android et PC : des formations pas à pas pour maîtriser ton téléphone et ton ordinateur.</p>
-                        <ul class="card-points">
-                            <li>Astuces Android &amp; PC</li>
-                            <li>Guides pratiques</li>
-                            <li>Formations progressives</li>
-                        </ul>
-                        <span class="card-cta">
-                            Découvrir les formations
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z"/></svg>
-                        </span>
-                    </div>
-                </a>
+            <article class="home-card">
+                <h3>Services pour votre business</h3>
+                <p>
+                    Des solutions numériques pour optimiser votre activité en
+                    ligne et créer vos formulaires.
+                </p>
+                <a class="home-card-action" href="#services" aria-label="Voir les services">→</a>
+            </article>
 
-                <a class="catalog-card card-life reveal d1" href="/benamoura.html">
-                    <div class="card-cover">
-                        <span class="cover-pattern"></span>
-                        <span class="cover-ico">
-                            <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                        </span>
-                        <span class="cover-count" id="count-life">…</span>
-                    </div>
-                    <div class="card-body">
-                        <span class="card-tag tag-life">Vie</span>
-                        <h3>Benamoura</h3>
-                        <p>Amour, histoires et séries sentimentales : des épisodes à lire, à aimer et à partager, entre romance et rebondissements.</p>
-                        <ul class="card-points">
-                            <li>Histoires d'amour</li>
-                            <li>Séries à épisodes</li>
-                            <li>Likes &amp; commentaires</li>
-                        </ul>
-                        <span class="card-cta">
-                            Découvrir les séries
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z"/></svg>
-                        </span>
-                    </div>
-                </a>
+            <article class="home-card">
+                <h3>Histoire à lire en série et épisode</h3>
+                <p>
+                    Lisez nos histoires et partagez des moments de lecture et
+                    de découverte gratuitement.
+                </p>
+                <a class="home-card-action" href="#" aria-label="Lire les histoires">→</a>
+            </article>
+
+            <article class="home-card">
+                <h3>Astuces informatique</h3>
+                <p>
+                    Découvrez des astuces simples pour mieux gérer votre
+                    ordinateur et votre téléphone gratuitement.
+                </p>
+                <a class="home-card-action" href="#" aria-label="Voir les astuces informatiques">→</a>
+            </article>
+        </div>
+
+        <p class="home-note">
+            Formation personnalisée, explications simples et accompagnement
+            pratique selon votre niveau et vos objectifs.
+        </p>
+
+    </div>
+
+    <!-- SERVICES -->
+    <div class="tab-content" data-content="services">
+
+        <h2>Formulaires pour votre activité</h2>
+
+        <p class="services-intro">
+            Choisissez l'offre adaptée à votre besoin. Nous créons des
+            formulaires professionnels pour recevoir vos inscriptions,
+            centraliser vos données et suivre votre activité.
+        </p>
+
+        <div class="pricing-grid">
+            <article class="pricing-card">
+                <span class="pricing-badge">Essentiel</span>
+                <h3>Basic</h3>
+                <p class="price">500 <small>GDES</small></p>
+                <ul class="pricing-features">
+                    <li>Formulaire d'inscription</li>
+                    <li>Réception des demandes sur WhatsApp</li>
+                    <li>Présentation simple et adaptée au mobile</li>
+                </ul>
+                <button class="pricing-action" type="button" data-service="Basic" data-price="500 GDES" data-features="Formulaire d'inscription|Réception des demandes sur WhatsApp|Présentation simple et adaptée au mobile">Choisir Basic</button>
+            </article>
+
+            <article class="pricing-card featured">
+                <span class="pricing-badge">Le plus choisi</span>
+                <h3>Pro</h3>
+                <p class="price">1 000 <small>GDES</small></p>
+                <ul class="pricing-features">
+                    <li>Formulaire d'inscription personnalisé</li>
+                    <li>Base de données pour vos inscriptions</li>
+                    <li>Alertes et notifications WhatsApp</li>
+                    <li>Données connectées à Google Sheets</li>
+                </ul>
+                <button class="pricing-action" type="button" data-service="Pro" data-price="1 000 GDES" data-features="Formulaire d'inscription personnalisé|Base de données pour vos inscriptions|Alertes et notifications WhatsApp|Données connectées à Google Sheets">Choisir Pro</button>
+            </article>
+
+            <article class="pricing-card">
+                <span class="pricing-badge">Complet</span>
+                <h3>Avancé</h3>
+                <p class="price">1 500 <small>GDES</small></p>
+                <ul class="pricing-features">
+                    <li>Formulaire d'inscription avancé</li>
+                    <li>Alertes WhatsApp automatisées</li>
+                    <li>Données enregistrées dans Google Sheets</li>
+                    <li>Dashboard pour gérer vos informations</li>
+                </ul>
+                <button class="pricing-action" type="button" data-service="Avancé" data-price="1 500 GDES" data-features="Formulaire d'inscription avancé|Alertes WhatsApp automatisées|Données enregistrées dans Google Sheets|Dashboard pour gérer vos informations">Choisir Avancé</button>
+            </article>
+        </div>
+
+    </div>
+
+    <!-- SERIES INFORMATIQUES -->
+    <div class="tab-content" data-content="bentoul">
+        <div class="series-view" id="bentoulSeriesView">
+            <p class="series-panel-intro">Découvrez les séries et épisodes consacrés à l'informatique.</p>
+            <div class="series-list" id="bentoulSeriesList">
+                <div class="series-empty">Chargement des séries informatiques...</div>
             </div>
-        </section>
+        </div>
+        <div class="episodes-view" id="bentoulEpisodesView" hidden>
+            <button class="series-back" type="button" data-back-series="bentoul">← Retour aux séries</button>
+            <h2 id="bentoulEpisodesTitle"></h2>
+            <div class="episode-list" id="bentoulEpisodesList"></div>
+        </div>
+        <div class="episode-view" id="bentoulEpisodeView" hidden>
+            <button class="series-back" type="button" data-back-episodes="bentoul">← Retour aux épisodes</button>
+            <div class="episode-reader" id="bentoulEpisodeReader"></div>
+        </div>
+    </div>
 
-        <!-- ATOUTS -->
-        <section class="section features" aria-label="Pourquoi nous">
-            <header class="section-head reveal">
-                <span class="section-kicker">Pourquoi BENTOUL</span>
-                <h2>Pensé pour une lecture simple</h2>
-                <p>Une expérience solide, du premier épisode jusqu'au déblocage.</p>
-            </header>
-
-            <div class="feature-grid">
-                <article class="feature reveal">
-                    <span class="feat-ico f-teal">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M21 5c-1.1-.35-2.3-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zM21 18.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/></svg>
-                    </span>
-                    <h3>Lecture fluide</h3>
-                    <p>Une interface claire, sans distraction, optimisée pour lire confortablement sur mobile comme sur PC.</p>
-                </article>
-
-                <article class="feature reveal d1">
-                    <span class="feat-ico f-blue">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z"/></svg>
-                    </span>
-                    <h3>3 épisodes offerts</h3>
-                    <p>Commence chaque série gratuitement. Les épisodes suivants se débloquent avec un seul crédit.</p>
-                </article>
-
-                <article class="feature reveal d2">
-                    <span class="feat-ico f-amber">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                    </span>
-                    <h3>Crédits &amp; déblocage</h3>
-                    <p>Débloque un épisode une fois, il reste à toi pour toujours. Gère tes crédits depuis ton profil.</p>
-                </article>
-
-                <article class="feature reveal d3">
-                    <span class="feat-ico f-rose">
-                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M17 1.01L7 1a2 2 0 00-2 2v18a2 2 0 002 2h10a2 2 0 002-2V3a2 2 0 00-2-1.99zM17 19H7V5h10v14z"/></svg>
-                    </span>
-                    <h3>Mobile first</h3>
-                    <p>Tout est conçu pour le téléphone : navigation rapide, boutons accessibles, lecture plein écran.</p>
-                </article>
+    <!-- SERIES D'AMOUR -->
+    <div class="tab-content" data-content="benamoura">
+        <div class="series-view" id="benamouraSeriesView">
+            <p class="series-panel-intro">Découvrez les histoires d'amour et les épisodes publiés par Benamoura.</p>
+            <div class="series-list" id="benamouraSeriesList">
+                <div class="series-empty">Chargement des séries d'amour...</div>
             </div>
-        </section>
+        </div>
+        <div class="episodes-view" id="benamouraEpisodesView" hidden>
+            <button class="series-back" type="button" data-back-series="benamoura">← Retour aux séries</button>
+            <h2 id="benamouraEpisodesTitle"></h2>
+            <div class="episode-list" id="benamouraEpisodesList"></div>
+        </div>
+        <div class="episode-view" id="benamouraEpisodeView" hidden>
+            <button class="series-back" type="button" data-back-episodes="benamoura">← Retour aux épisodes</button>
+            <div class="episode-reader" id="benamouraEpisodeReader"></div>
+        </div>
+    </div>
 
-        <!-- ÉTAPES -->
-        <section class="section steps" aria-label="Comment ça marche">
-            <header class="section-head reveal">
-                <span class="section-kicker">En 3 étapes</span>
-                <h2>Comment ça marche</h2>
-            </header>
+    <!-- CONTACT -->
+    <div class="tab-content" data-content="contact">
 
-            <div class="step-grid">
-                <div class="step reveal">
-                    <span class="step-num">01</span>
-                    <h3>Crée ton compte</h3>
-                    <p>Inscris-toi en quelques secondes et reçois tes crédits de bienvenue.</p>
-                </div>
-                <div class="step reveal d1">
-                    <span class="step-num">02</span>
-                    <h3>Choisis une série</h3>
-                    <p>Benamoura pour l'émotion, BentoUL pour la tech. Les 3 premiers épisodes sont gratuits.</p>
-                </div>
-                <div class="step reveal d2">
-                    <span class="step-num">03</span>
-                    <h3>Lis &amp; débloque</h3>
-                    <p>Aime, commente, partage. Débloque la suite avec un crédit et garde-la à vie.</p>
-                </div>
+        <h2>Contactez BENTOUL CREATION</h2>
+
+        <p>
+            Vous souhaitez suivre une formation ou bénéficier
+            de nos services numériques ?
+        </p>
+
+        <p>
+            Contactez-nous directement sur WhatsApp pour discuter
+            de votre projet.
+        </p>
+
+        <a href="https://wa.me/50942772970"
+           style="display:inline-block;background:#16a34a;color:white;padding:13px 20px;border-radius:8px;text-decoration:none;">
+            Contacter sur WhatsApp
+        </a>
+
+    </div>
+
+    <!-- COMPTE -->
+    <div class="tab-content" data-content="account">
+        <h2>Mon compte</h2>
+        <div class="account-box" id="accountBox"></div>
+    </div>
+
+</div>
+
+<div class="service-modal-backdrop" id="serviceModalBackdrop" role="presentation">
+    <section class="service-modal" role="dialog" aria-modal="true" aria-labelledby="serviceModalTitle">
+        <div class="service-modal-header">
+            <div>
+                <h2 id="serviceModalTitle">Votre demande</h2>
+                <p class="service-modal-price" id="serviceModalPrice"></p>
             </div>
-        </section>
+            <button class="service-modal-close" id="serviceModalClose" type="button" aria-label="Fermer">×</button>
+        </div>
 
-        <!-- CTA FINAL -->
-        <section class="cta-band reveal" aria-label="Commencer">
-            <div class="cta-glow" aria-hidden="true"></div>
-            <h2>Prêt à commencer l'aventure ?</h2>
-            <p>Rejoins BENTOUL CREATION et découvre ton prochain épisode préféré.</p>
-            <a class="btn btn-light" href="/users.html">
-                Créer mon compte
-                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M12 4l-1.4 1.4L16.2 11H4v2h12.2l-5.6 5.6L12 20l8-8z"/></svg>
-            </a>
-        </section>
+        <ul class="service-modal-list" id="serviceModalFeatures"></ul>
 
-    </main>
+        <label for="serviceRequest">Votre demande ou précision (facultatif)</label>
+        <textarea id="serviceRequest" placeholder="Écrivez votre besoin, votre activité ou votre question..."></textarea>
+        <button class="service-modal-submit" id="serviceModalSubmit" type="button">Envoyer par WhatsApp</button>
+    </section>
+</div>
 
-    <script src="/js/config.js"></script>
-    <script src="/js/session.js"></script>
-    <script src="/js/app.js"></script>
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<aside class="sidebar" id="sidebar" aria-label="Menu principal">
+    <h2>Menu</h2>
+    <button class="tab-btn active" data-tab="home">Accueil</button>
+    <button class="tab-btn" data-tab="services">Services</button>
+    <button class="tab-btn" data-tab="contact">Contact</button>
+    <button class="tab-btn" data-tab="bentoul">Bentoul</button>
+    <button class="tab-btn" data-tab="benamoura">Benamoura</button>
+    <button class="tab-btn" data-tab="account">Compte</button>
+</aside>
 
-    <script>
-        (function () {
-            // Révélations au scroll
-            var items = document.querySelectorAll(".reveal");
-            if ("IntersectionObserver" in window) {
-                var io = new IntersectionObserver(function (entries) {
-                    entries.forEach(function (en) {
-                        if (en.isIntersecting) {
-                            en.target.classList.add("in");
-                            io.unobserve(en.target);
-                        }
-                    });
-                }, { threshold: 0.12, rootMargin: "0px 0px -40px 0px" });
-                items.forEach(function (el) { io.observe(el); });
-            } else {
-                items.forEach(function (el) { el.classList.add("in"); });
-            }
+<script src="tab.js"></script>
 
-            // Compteurs animés
-            function countUp(el, target) {
-                var start = null, dur = 1100;
-                function tick(ts) {
-                    if (!start) start = ts;
-                    var p = Math.min((ts - start) / dur, 1);
-                    var eased = 1 - Math.pow(1 - p, 3);
-                    el.textContent = Math.round(eased * target);
-                    if (p < 1) requestAnimationFrame(tick);
-                }
-                requestAnimationFrame(tick);
-            }
-            document.querySelectorAll("[data-count]").forEach(function (el) {
-                var target = parseInt(el.getAttribute("data-count"), 10);
-                if (target > 0) countUp(el, target);
-            });
-
-            // Compteurs live des séries (dégradation douce si l'API ne répond pas)
-            function loadCount(url, elId) {
-                var el = document.getElementById(elId);
-                if (!url || !el) return Promise.resolve(0);
-                return fetch(url + "?action=getSeries")
-                    .then(function (r) { return r.ok ? r.json() : null; })
-                    .then(function (j) {
-                        var n = j && j.data ? j.data.length : 0;
-                        el.textContent = n + (n > 1 ? " séries" : " série");
-                        return n;
-                    })
-                    .catch(function () { el.textContent = "Catalogue"; return 0; });
-            }
-            var cfg = window.BTM_CONFIG || {};
-            Promise.all([
-                loadCount(cfg.BENTOUL_API_URL, "count-tech"),
-                loadCount(cfg.BENAMOURA_API_URL, "count-life")
-            ]).then(function (res) {
-                var total = res[0] + res[1];
-                var stat = document.getElementById("stat-series");
-                if (total > 0) countUp(stat, total);
-                else stat.textContent = "—";
-            });
-        })();
-    </script>
 </body>
 </html>
