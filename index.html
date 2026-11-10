@@ -5,7 +5,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>BENTOUL CREATION - Nos Services</title>
+    <title>BENTOUL CREATION</title>
+    <meta name="description" content="Bienvenue sur BENTOUL CREATION, découvrez tous nos services et apprenez l'informatique sur Android et PC grâce à nos astuces.">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="BENTOUL CREATION">
+    <meta property="og:title" content="BENTOUL CREATION">
+    <meta property="og:description" content="Bienvenue sur BENTOUL CREATION, découvrez tous nos services et apprenez l'informatique sur Android et PC grâce à nos astuces.">
+    <meta property="og:image" content="image/home.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="BENTOUL CREATION">
+    <meta name="twitter:description" content="Bienvenue sur BENTOUL CREATION, découvrez tous nos services et apprenez l'informatique sur Android et PC grâce à nos astuces.">
+    <meta name="twitter:image" content="image/home.jpg">
 
     <link rel="stylesheet" href="tab.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -14,7 +24,7 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 82px 20px 86px;
+            padding: calc(var(--header-h) + var(--ad-top-h) + var(--ad-gap)) 20px calc(var(--nav-h) + var(--ad-bottom-h) + var(--ad-gap));
             background: #f5f7fa;
             color: #222;
             overflow-x: hidden;
@@ -127,7 +137,7 @@
         }
 
         .tabs {
-            max-width: 900px;
+            max-width: none;
             margin: auto;
             display: flex;
             flex-direction: column;
@@ -869,7 +879,7 @@
             min-height: 220px;
             place-items: center;
             border: 1px solid #2563eb;
-            background: #4778ca;
+            background: #0b1f6b url("image/home.jpg") center / cover no-repeat;
             color: white;
             font-size: clamp(1.8rem, 5vw, 3rem);
             text-align: center;
@@ -957,8 +967,8 @@
         @media (max-width: 600px) {
             body {
                 padding: 0;
-                padding-top: 76px;
-                padding-bottom: 76px;
+                padding-top: calc(var(--header-h) + var(--ad-top-h) + var(--ad-gap));
+                padding-bottom: calc(var(--nav-h) + var(--ad-bottom-h) + var(--ad-gap));
             }
 
             .site-header {
@@ -1112,49 +1122,49 @@
     <a class="site-title" href="#/home">BENTOUL CREATION</a>
     <a class="site-credits" href="#/account" aria-label="Voir mon compte et mes crédits">0 crédits</a>
 </header>
-<div>
+<div class="ad-slot ad-top" id="adTop" aria-hidden="true">
     <script>
   atOptions = {
-    'key' : '21a60a762f8cfad6108a5cccc6ce85e0',
+    'key' : 'e1fr3eAuNGUF7ViXgWxWZJdamTCtdtTXr5',
     'format' : 'iframe',
     'height' : 50,
     'width' : 320,
     'params' : {}
   };
 </script>
-<script src="https://brijmohan.org/22/21a60a762f8cfad6108a5cccc6ce85e0"></script>
+<script src="https://biomanos.org/22/e1fr3eAuNGUF7ViXgWxWZJdamTCtdtTXr5"></script>
 </div>
 
 <div class="tabs">
 
     <!-- Navigation -->
-    <div class="tabs-nav">
+    <nav class="tabs-nav" aria-label="Navigation principale">
 
-        <button class="tab-btn active" data-tab="home">
+        <a class="tab-btn active" data-tab="home" href="#/home">
             Accueil
-        </button>
+        </a>
 
-        <button class="tab-btn" data-tab="services">
+        <a class="tab-btn" data-tab="services" href="#/services">
             Services
-        </button>
+        </a>
 
-        <button class="tab-btn" data-tab="contact">
+        <a class="tab-btn" data-tab="contact" href="#/contact">
             Contact
-        </button>
+        </a>
 
-        <button class="tab-btn" data-tab="bentoul">
+        <a class="tab-btn" data-tab="bentoul" href="#/bentoul">
             Bentoul
-        </button>
+        </a>
 
-        <button class="tab-btn" data-tab="benamoura">
+        <a class="tab-btn" data-tab="benamoura" href="#/benamoura">
             Benamoura
-        </button>
+        </a>
 
-        <button class="tab-btn" data-tab="account">
+        <a class="tab-btn" data-tab="account" href="#/account">
             Compte
-        </button>
+        </a>
 
-    </div>
+    </nav>
 
     <!-- ACCUEIL -->
     <div class="tab-content active" data-content="home">
@@ -1167,7 +1177,7 @@
                     développer vos compétences numériques.
                 </p>
             </div>
-            <div class="home-hero-image">Votre image ici</div>
+            <div class="home-hero-image" role="img" aria-label="BENTOUL CREATION — apprentissage informatique à domicile sur PC et Android"></div>
         </section>
 
         <div class="home-cards">
@@ -1177,7 +1187,7 @@
                     Apprenez l'informatique depuis chez vous avec une formation
                     adaptée à votre niveau.
                 </p>
-                <a class="home-card-action" href="#services" aria-label="Voir les cours">→</a>
+                <a class="home-card-action" href="#/services" aria-label="Voir les cours">→</a>
             </article>
 
             <article class="home-card">
@@ -1186,7 +1196,7 @@
                     Des solutions numériques pour optimiser votre activité en
                     ligne et créer vos formulaires.
                 </p>
-                <a class="home-card-action" href="#services" aria-label="Voir les services">→</a>
+                <a class="home-card-action" href="#/services" aria-label="Voir les services">→</a>
             </article>
 
             <article class="home-card">
@@ -1195,7 +1205,7 @@
                     Lisez nos histoires et partagez des moments de lecture et
                     de découverte gratuitement.
                 </p>
-                <a class="home-card-action" href="#" aria-label="Lire les histoires">→</a>
+                <a class="home-card-action" href="#/benamoura" aria-label="Lire les histoires">→</a>
             </article>
 
             <article class="home-card">
@@ -1204,7 +1214,7 @@
                     Découvrez des astuces simples pour mieux gérer votre
                     ordinateur et votre téléphone gratuitement.
                 </p>
-                <a class="home-card-action" href="#" aria-label="Voir les astuces informatiques">→</a>
+                <a class="home-card-action" href="#/bentoul" aria-label="Voir les astuces informatiques">→</a>
             </article>
         </div>
 
@@ -1277,12 +1287,12 @@
             </div>
         </div>
         <div class="episodes-view" id="bentoulEpisodesView" hidden>
-            <button class="series-back" type="button" data-back-series="bentoul">← Retour aux séries</button>
+            <a class="series-back" data-back-series="bentoul" href="#/bentoul">← Retour aux séries</a>
             <h2 id="bentoulEpisodesTitle"></h2>
             <div class="episode-list" id="bentoulEpisodesList"></div>
         </div>
         <div class="episode-view" id="bentoulEpisodeView" hidden>
-            <button class="series-back" type="button" data-back-episodes="bentoul">← Retour aux épisodes</button>
+            <a class="series-back" data-back-episodes="bentoul" href="#/bentoul">← Retour aux épisodes</a>
             <div class="episode-reader" id="bentoulEpisodeReader"></div>
         </div>
     </div>
@@ -1296,12 +1306,12 @@
             </div>
         </div>
         <div class="episodes-view" id="benamouraEpisodesView" hidden>
-            <button class="series-back" type="button" data-back-series="benamoura">← Retour aux séries</button>
+            <a class="series-back" data-back-series="benamoura" href="#/benamoura">← Retour aux séries</a>
             <h2 id="benamouraEpisodesTitle"></h2>
             <div class="episode-list" id="benamouraEpisodesList"></div>
         </div>
         <div class="episode-view" id="benamouraEpisodeView" hidden>
-            <button class="series-back" type="button" data-back-episodes="benamoura">← Retour aux épisodes</button>
+            <a class="series-back" data-back-episodes="benamoura" href="#/benamoura">← Retour aux épisodes</a>
             <div class="episode-reader" id="benamouraEpisodeReader"></div>
         </div>
     </div>
@@ -1335,17 +1345,17 @@
     </div>
 
 </div>
-<div>
+<div class="ad-slot ad-bottom" id="adBottom" aria-hidden="true">
     <script>
   atOptions = {
-    'key' : 'e1fr3eAuNGUF7ViXgWxWZJdamTCtdtTXr5',
+    'key' : '21a60a762f8cfad6108a5cccc6ce85e0',
     'format' : 'iframe',
     'height' : 50,
     'width' : 320,
     'params' : {}
   };
 </script>
-<script src="https://biomanos.org/22/e1fr3eAuNGUF7ViXgWxWZJdamTCtdtTXr5"></script>
+<script src="https://brijmohan.org/22/21a60a762f8cfad6108a5cccc6ce85e0"></script>
 </div>
 
 <div class="service-modal-backdrop" id="serviceModalBackdrop" role="presentation">
@@ -1369,12 +1379,12 @@
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <aside class="sidebar" id="sidebar" aria-label="Menu principal">
     <h2>Menu</h2>
-    <button class="tab-btn active" data-tab="home">Accueil</button>
-    <button class="tab-btn" data-tab="services">Services</button>
-    <button class="tab-btn" data-tab="contact">Contact</button>
-    <button class="tab-btn" data-tab="bentoul">Bentoul</button>
-    <button class="tab-btn" data-tab="benamoura">Benamoura</button>
-    <button class="tab-btn" data-tab="account">Compte</button>
+    <a class="tab-btn active" data-tab="home" href="#/home">Accueil</a>
+    <a class="tab-btn" data-tab="services" href="#/services">Services</a>
+    <a class="tab-btn" data-tab="contact" href="#/contact">Contact</a>
+    <a class="tab-btn" data-tab="bentoul" href="#/bentoul">Bentoul</a>
+    <a class="tab-btn" data-tab="benamoura" href="#/benamoura">Benamoura</a>
+    <a class="tab-btn" data-tab="account" href="#/account">Compte</a>
 </aside>
 
 <script src="tab.js"></script>

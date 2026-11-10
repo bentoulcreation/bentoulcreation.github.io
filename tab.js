@@ -9,13 +9,50 @@ const CACHE_PREFIX = "bentoulcreation.cache.";
 const CACHE_TTL = 10 * 60 * 1000;
 
 const TABS = ["home", "services", "contact", "bentoul", "benamoura", "account"];
-const TAB_TITLES = {
-    home: "BENTOUL CREATION - Nos Services",
-    services: "Services — BENTOUL CREATION",
-    contact: "Contact — BENTOUL CREATION",
-    bentoul: "Séries informatiques — BENTOUL CREATION",
-    benamoura: "Séries d'amour — BENTOUL CREATION",
-    account: "Mon compte — BENTOUL CREATION"
+/* ===== SEO dynamique par tab ===== */
+const SEO = {
+    home: {
+        title: "BENTOUL CREATION",
+        description: "Bienvenue sur BENTOUL CREATION, découvrez tous nos services et apprenez l'informatique sur Android et PC grâce à nos astuces.",
+        image: "image/home.jpg"
+    },
+    services: {
+        title: "CRÉATION FORMULAIRE",
+        description: "Demandez un formulaire personnalisé pour votre business ou votre école : séminaire, commande, rendez-vous, etc.",
+        image: "image/services.jpg"
+    },
+    bentoul: {
+        title: "BENTOUL — Astuces informatique sur PC et Android pour vous aider à bien utiliser vos appareils",
+        description: "Astuces informatique sur PC et Android : séries et épisodes pratiques pour bien utiliser vos appareils.",
+        image: "image/bentoul.jpg"
+    },
+    benamoura: {
+        title: "BENAMOURA — Retrouvez nos histoires et nos SMS en série et des conseils pour vous aider à grandir en paix et en toute conscience",
+        description: "Histoires d'amour et SMS en série, plus des conseils pour grandir en paix et en toute conscience.",
+        image: "image/benamoura.jpg"
+    },
+    contact: {
+        title: "Contact — BENTOUL CREATION",
+        description: "Contactez BENTOUL CREATION sur WhatsApp pour une formation à domicile ou un service numérique.",
+        image: "image/home.jpg"
+    },
+    account: {
+        title: "Mon compte — BENTOUL CREATION",
+        description: "Gérez votre compte BENTOUL CREATION : crédits, code de parrainage et connexion.",
+        image: "image/home.jpg"
+    }
+};
+
+/* ===== Liens d'abonnement du header (colle tes URL ici) ===== */
+const SUBSCRIBE_LINKS = {
+    home: "https://www.youtube.com/@bentoulcreation",
+    bentoul: "https://whatsapp.com/channel/0029VadhmlpEAKWIRzYyWt0a",
+    benamoura: "https://whatsapp.com/channel/0029Vb6gBha8F2pDLuILTH1o"
+};
+const SUBSCRIBE_META = {
+    home: { icon: "fa-brands fa-youtube", label: "S'abonner", theme: "youtube" },
+    bentoul: { icon: "fa-brands fa-whatsapp", label: "S'abonner", theme: "whatsapp" },
+    benamoura: { icon: "fa-brands fa-whatsapp", label: "S'abonner", theme: "whatsapp" }
 };
 const SERIES_SPACES = ["bentoul", "benamoura"];
 
@@ -462,6 +499,75 @@ async function loadComments(space) {
     }
 }
 
+/* ===== SEO + bouton d'abonnement ===== */
+function setMeta(attr, key, content) {
+    let el = document.head.querySelector(`meta[${attr}="${key}"]`);
+    if (!el) {
+        el = document.createElement("meta");
+        el.setAttribute(attr, key);
+        document.head.appendChild(el);
+    }
+    el.setAttribute("content", content);
+}
+
+function applySEO(tab, override = {}) {
+    const base = SEO[tab] || SEO.home;
+    const title = override.title || base.title;
+    const description = override.description || base.description;
+    const image = new URL(override.image || base.image, location.href).href;
+    document.title = title;
+    setMeta("name", "description", description);
+    setMeta("property", "og:title", title);
+    setMeta("property", "og:description", description);
+    setMeta("property", "og:image", image);
+    setMeta("property", "og:url", location.href);
+    setMeta("property", "og:type", "website");
+    setMeta("name", "twitter:card", "summary_large_image");
+    setMeta("name", "twitter:title", title);
+    setMeta("name", "twitter:description", description);
+    setMeta("name", "twitter:image", image);
+    let canonical = document.head.querySelector('link[rel="canonical"]');
+    if (!canonical) {
+        canonical = document.createElement("link");
+        canonical.rel = "canonical";
+        document.head.appendChild(canonical);
+    }
+    canonical.href = location.href;
+}
+
+function updateSubscribe(tab) {
+    const header = document.querySelector(".site-header");
+    if (!header) return;
+    let btn = document.querySelector("#subscribeBtn");
+    const meta = SUBSCRIBE_META[tab];
+    if (!meta) {
+        if (btn) btn.remove();
+        return;
+    }
+    if (!btn) {
+        btn = document.createElement("a");
+        btn.id = "subscribeBtn";
+        btn.className = "subscribe-btn";
+        btn.target = "_blank";
+        btn.rel = "noopener noreferrer";
+        header.insertBefore(btn, header.querySelector(".site-credits"));
+    }
+    const url = (SUBSCRIBE_LINKS[tab] || "").trim();
+    btn.classList.toggle("youtube", meta.theme === "youtube");
+    btn.classList.toggle("whatsapp", meta.theme === "whatsapp");
+    btn.innerHTML = `<i class="${meta.icon}" aria-hidden="true"></i><span>${escapeHTML(meta.label)}</span>`;
+    if (url) {
+        btn.href = url;
+        btn.removeAttribute("aria-disabled");
+        btn.title = meta.theme === "youtube" ? "S'abonner à la chaîne YouTube" : "S'abonner à la chaîne WhatsApp";
+    } else {
+        btn.removeAttribute("href");
+        btn.setAttribute("aria-disabled", "true");
+        btn.title = "Lien d'abonnement à configurer dans SUBSCRIBE_LINKS (tab.js)";
+    }
+    btn.setAttribute("aria-label", `${meta.label} — ${tab}`);
+}
+
 /* ===== Routing : #/tab, #/tab/titre-serie, #/tab/titre-serie/titre-episode ===== */
 function parseRoute() {
     const hash = location.hash.replace(/^#\/?/, "");
@@ -493,7 +599,7 @@ function setBackLinks(space) {
 async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
     if (!seriesSlug) {
         showPanel(space, "series");
-        document.title = TAB_TITLES[space];
+        applySEO(space);
         if (seriesCache[space].length) renderSeries(space);
         else document.querySelector(`#${space}SeriesList`).innerHTML = skeletonCards(3);
         try {
@@ -553,7 +659,11 @@ async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
 
     if (!episodeSlug) {
         renderEpisodes(space);
-        document.title = `${series.titre || "Série"} — BENTOUL CREATION`;
+        applySEO(space, {
+            title: `${series.titre || "Série"} — BENTOUL CREATION`,
+            image: series.image || "",
+            description: `Découvrez la série « ${series.titre || "Série"} » et tous ses épisodes sur BENTOUL CREATION.`
+        });
         return;
     }
 
@@ -565,19 +675,23 @@ async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
     }
     selectedEpisode[space] = episode;
     renderEpisodeReader(space);
-    document.title = `${episode.titre || "Épisode"} — ${series.titre || "Série"} | BENTOUL CREATION`;
+    applySEO(space, {
+        title: `${episode.titre || "Épisode"} — ${series.titre || "Série"} | BENTOUL CREATION`,
+        image: episode.image || series.image || "",
+        description: `Lire « ${episode.titre || "Épisode"} » de la série « ${series.titre || "Série"} » sur BENTOUL CREATION.`
+    });
 }
 
 async function applyRoute() {
     const token = ++routeToken;
     const { tab, seriesSlug, episodeSlug } = parseRoute();
     activateTab(tab);
+    updateSubscribe(tab);
+    applySEO(tab);
     closeSidebar();
     window.scrollTo(0, 0);
     if (SERIES_SPACES.includes(tab)) {
         await renderSpaceRoute(tab, seriesSlug, episodeSlug, token);
-    } else {
-        document.title = TAB_TITLES[tab];
     }
 }
 
@@ -769,6 +883,10 @@ async function submitAccountForm(form) {
 
 /* ===== Délégation des clics ===== */
 document.addEventListener("click", function(e) {
+    if (e.target.closest('#subscribeBtn[aria-disabled="true"]')) {
+        e.preventDefault();
+        return;
+    }
     const tabControl = e.target.closest("[data-tab]");
     if (tabControl) {
         e.preventDefault();

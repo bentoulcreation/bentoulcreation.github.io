@@ -1,7 +1,146 @@
 
-/* Conteneur principal */
+/* Conteneur principal — 50% de la largeur par défaut sur desktop */
 .tabs {
-    width: 100%;
+    width: 50%;
+    min-width: 0;
+}
+
+@media (max-width: 900px) {
+    .tabs {
+        width: 100%;
+    }
+}
+
+/* Variables de mise en page (header / nav / pubs) */
+:root {
+    --header-h: 62px;
+    --nav-h: 58px;
+    --ad-top-h: 50px;
+    --ad-bottom-h: 50px;
+    --ad-gap: 12px;
+}
+
+/* Bannières publicitaires fixes */
+.ad-slot {
+    position: fixed;
+    z-index: 950;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #fff;
+}
+
+.ad-slot::before {
+    position: absolute;
+    z-index: 0;
+    color: #b6c2d4;
+    content: "Publicité";
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+}
+
+.ad-slot iframe {
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 320px;
+    height: 50px;
+    max-width: 100%;
+    border: 0;
+}
+
+.ad-top {
+    top: var(--header-h);
+    height: var(--ad-top-h);
+    border-bottom: 1px solid #dbe3ee;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, .05);
+}
+
+.ad-bottom {
+    bottom: var(--nav-h);
+    height: var(--ad-bottom-h);
+    border-top: 1px solid #dbe3ee;
+    box-shadow: 0 -2px 6px rgba(15, 23, 42, .05);
+}
+
+/* Bouton d'abonnement contextuel du header */
+.subscribe-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex: 0 0 auto;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #fff;
+    font-size: .85rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, .35);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.subscribe-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, .45);
+}
+
+.subscribe-btn.youtube {
+    background: #ff0000;
+    box-shadow: 0 2px 8px rgba(255, 0, 0, .35);
+}
+
+.subscribe-btn.youtube:hover {
+    box-shadow: 0 4px 12px rgba(255, 0, 0, .45);
+}
+
+.subscribe-btn.whatsapp {
+    background: #16a34a;
+    box-shadow: 0 2px 8px rgba(22, 163, 74, .35);
+}
+
+.subscribe-btn.whatsapp:hover {
+    box-shadow: 0 4px 12px rgba(22, 163, 74, .45);
+}
+
+.subscribe-btn[aria-disabled="true"] {
+    opacity: .55;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.subscribe-btn i {
+    font-size: 1rem;
+}
+
+.menu-toggle,
+.site-credits {
+    flex: 0 0 auto;
+}
+
+.site-title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .subscribe-btn {
+        padding: 6px 10px;
+        font-size: .72rem;
+        gap: 5px;
+    }
+
+    .subscribe-btn i {
+        font-size: .85rem;
+    }
 }
 
 /* Barre des onglets */
