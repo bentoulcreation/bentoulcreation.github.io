@@ -9,7 +9,7 @@ const CACHE_PREFIX = "bentoulcreation.cache.";
 const CACHE_TTL = 10 * 60 * 1000;
 const SITE_URL = "https://bentoulcreation.github.io";
 
-const TABS = ["home", "services", "contact", "bentoul", "benamoura", "account"];
+const TABS = ["home", "services", "contact", "bentoul", "benamoura", "account", "stats"];
 /* ===== SEO dynamique par tab ===== */
 const SEO = {
     home: {
@@ -40,6 +40,11 @@ const SEO = {
     account: {
         title: "Mon compte — BENTOUL CREATION",
         description: "Gérez votre compte BENTOUL CREATION : crédits, code de parrainage et connexion.",
+        image: "image/home.jpg"
+    },
+    stats: {
+        title: "Statistiques — BENTOUL CREATION",
+        description: "Tableau de bord des visites : pays, pages, plateformes d'origine, appareils et navigateurs.",
         image: "image/home.jpg"
     }
 };
@@ -398,8 +403,10 @@ function episodeHref(space, episode) {
 
 /* Lien partageable : page statique par tab (og:image correcte pour Facebook/WhatsApp)
    + hash série/épisode transmis au SPA par la redirection de la page statique. */
+const STATIC_TABS = ["services", "contact", "bentoul", "benamoura", "account"];
+
 function shareURL(tab, seriesSlug = "", episodeSlug = "") {
-    const base = tab === "home" ? `${SITE_URL}/` : `${SITE_URL}/${tab}/`;
+    const base = STATIC_TABS.includes(tab) ? `${SITE_URL}/${tab}/` : `${SITE_URL}/`;
     const suffix = [seriesSlug, episodeSlug].filter(Boolean).map(encodeURIComponent).join("/");
     return suffix ? `${base}#/${tab}/${suffix}` : base;
 }
@@ -701,9 +708,19 @@ async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
     });
 }
 
+/* L'URL visible devient la page statique du tab (/bentoul/#/bentoul/...)
+   pour que le lien copié depuis le navigateur donne le bon aperçu Facebook/WhatsApp. */
+function syncAddressWithStaticPage(tab) {
+    const path = STATIC_TABS.includes(tab) ? `/${tab}/` : "/";
+    if (location.pathname !== path) {
+        history.replaceState(null, "", path + (location.hash || ""));
+    }
+}
+
 async function applyRoute() {
     const token = ++routeToken;
     const { tab, seriesSlug, episodeSlug } = parseRoute();
+    syncAddressWithStaticPage(tab);
     activateTab(tab);
     updateSubscribe(tab);
     applySEO(tab);

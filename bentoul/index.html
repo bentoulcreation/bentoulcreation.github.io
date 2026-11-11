@@ -20,7 +20,7 @@
     <link rel="canonical" href="https://bentoulcreation.github.io/bentoul/">
     <script>
     // Les crawlers Facebook/WhatsApp ne lisent que les balises OG ci-dessus (pas de JS).
-    location.replace("/#/bentoul" + location.hash.replace(/^#\/?bentoul\/?/, "").replace(/^\/?/, "/"));
+    location.replace("/?r=" + Date.now() + "#/bentoul" + location.hash.replace(/^#\/?bentoul\/?/, "").replace(/^\/?/, "/"));
     </script>
     <style>
         body { margin:0; font-family:Arial,sans-serif; background:#0b1f6b; color:#fff; display:flex; align-items:center; justify-content:center; min-height:100vh; text-align:center; }
