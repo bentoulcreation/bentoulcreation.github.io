@@ -7,6 +7,7 @@ const USERS_API_URL = window.USERS_API_URL || "https://script.google.com/macros/
 const ACCOUNT_STORAGE_KEY = "bentoul.account.user";
 const CACHE_PREFIX = "bentoulcreation.cache.";
 const CACHE_TTL = 10 * 60 * 1000;
+const SITE_URL = "https://bentoulcreation.github.io";
 
 const TABS = ["home", "services", "contact", "bentoul", "benamoura", "account"];
 /* ===== SEO dynamique par tab ===== */
@@ -395,6 +396,21 @@ function episodeHref(space, episode) {
     return `#/${space}/${seriesSlug}/${slugFor(episodeCache[space].items, episode)}`;
 }
 
+/* Lien partageable : page statique par tab (og:image correcte pour Facebook/WhatsApp)
+   + hash série/épisode transmis au SPA par la redirection de la page statique. */
+function shareURL(tab, seriesSlug = "", episodeSlug = "") {
+    const base = tab === "home" ? `${SITE_URL}/` : `${SITE_URL}/${tab}/`;
+    const suffix = [seriesSlug, episodeSlug].filter(Boolean).map(encodeURIComponent).join("/");
+    return suffix ? `${base}#/${tab}/${suffix}` : base;
+}
+
+function episodeShareURL(space, episode) {
+    const series = selectedSeries[space];
+    return shareURL(space,
+        series ? slugFor(seriesCache[space], series) : "",
+        slugFor(episodeCache[space].items, episode));
+}
+
 function episodeActionsHTML(space, episode, cardStyle) {
     const attr = cardStyle ? "data-card-reaction" : "data-reaction";
     const cls = cardStyle ? "episode-action" : "reader-action";
@@ -514,13 +530,14 @@ function applySEO(tab, override = {}) {
     const base = SEO[tab] || SEO.home;
     const title = override.title || base.title;
     const description = override.description || base.description;
-    const image = new URL(override.image || base.image, location.href).href;
+    const image = new URL(override.image || base.image, `${SITE_URL}/`).href;
+    const url = override.url || shareURL(tab);
     document.title = title;
     setMeta("name", "description", description);
     setMeta("property", "og:title", title);
     setMeta("property", "og:description", description);
     setMeta("property", "og:image", image);
-    setMeta("property", "og:url", location.href);
+    setMeta("property", "og:url", url);
     setMeta("property", "og:type", "website");
     setMeta("name", "twitter:card", "summary_large_image");
     setMeta("name", "twitter:title", title);
@@ -532,7 +549,7 @@ function applySEO(tab, override = {}) {
         canonical.rel = "canonical";
         document.head.appendChild(canonical);
     }
-    canonical.href = location.href;
+    canonical.href = url;
 }
 
 function updateSubscribe(tab) {
@@ -662,7 +679,8 @@ async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
         applySEO(space, {
             title: `${series.titre || "Série"} — BENTOUL CREATION`,
             image: series.image || "",
-            description: `Découvrez la série « ${series.titre || "Série"} » et tous ses épisodes sur BENTOUL CREATION.`
+            description: `Découvrez la série « ${series.titre || "Série"} » et tous ses épisodes sur BENTOUL CREATION.`,
+            url: shareURL(space, seriesSlug)
         });
         return;
     }
@@ -678,7 +696,8 @@ async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
     applySEO(space, {
         title: `${episode.titre || "Épisode"} — ${series.titre || "Série"} | BENTOUL CREATION`,
         image: episode.image || series.image || "",
-        description: `Lire « ${episode.titre || "Épisode"} » de la série « ${series.titre || "Série"} » sur BENTOUL CREATION.`
+        description: `Lire « ${episode.titre || "Épisode"} » de la série « ${series.titre || "Série"} » sur BENTOUL CREATION.`,
+        url: shareURL(space, seriesSlug, episodeSlug)
     });
 }
 
@@ -715,9 +734,10 @@ function postReaction(space, episode, action) {
     }).catch(() => { /* l'affichage local reste disponible */ });
 }
 
-function flashShareFeedback(button, copied) {
+function flashShareFeedback(button, copied, url) {
+    if (!copied && url) window.prompt("Copiez le lien de partage :", url);
     if (!button || !button.isConnected) return;
-    button.innerHTML = `<i class="fa-solid ${copied ? "fa-check" : "fa-link"}" aria-hidden="true"></i> ${copied ? "Lien copé !" : "Lien dans la barre d'adresse"}`;
+    button.innerHTML = `<i class="fa-solid ${copied ? "fa-check" : "fa-link"}" aria-hidden="true"></i> ${copied ? "Lien copié !" : "Lien de partage"}`;
     setTimeout(() => {
         if (!button.isConnected) return;
         const space = button.dataset.space;
@@ -733,13 +753,14 @@ async function handleReaderReaction(space, action, button) {
     const episode = selectedEpisode[space];
     if (!episode) return;
     if (action === "share") {
-        const copied = await copyText(location.href);
+        const url = episodeShareURL(space, episode);
+        const copied = await copyText(url);
         if (copied) {
             updateReactionCount(episode, "shares");
             postReaction(space, episode, "share");
         }
         refreshReaderActions(space);
-        flashShareFeedback(document.querySelector(`#${space}EpisodeReader [data-reaction="share"]`), copied);
+        flashShareFeedback(document.querySelector(`#${space}EpisodeReader [data-reaction="share"]`), copied, url);
         return;
     }
     updateReactionCount(episode, action);
@@ -751,13 +772,14 @@ async function handleCardReaction(space, episodeId, action, button) {
     const episode = episodeCache[space].items.find(item => String(item.id) === String(episodeId));
     if (!episode) return;
     if (action === "share") {
-        const copied = await copyText(`${location.origin}${location.pathname}${episodeHref(space, episode)}`);
+        const url = episodeShareURL(space, episode);
+        const copied = await copyText(url);
         if (copied) {
             updateReactionCount(episode, "shares");
             postReaction(space, episode, "share");
         }
         refreshCardActions(space, episodeId);
-        flashShareFeedback(button, copied);
+        flashShareFeedback(button, copied, url);
         return;
     }
     updateReactionCount(episode, action);
