@@ -21,14 +21,14 @@
     <meta name="twitter:image" content="https://bentoulcreation.github.io/image/home.jpg">
     <link rel="canonical" href="https://bentoulcreation.github.io/">
 
-    <link rel="stylesheet" href="/tab.css?v=2">
+    <link rel="stylesheet" href="/tab.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: calc(var(--header-h) + var(--ad-top-h) + var(--ad-gap)) 20px calc(var(--nav-h) + var(--ad-bottom-h) + var(--ad-gap));
+            margin: 1px;
+            padding: calc(var(--header-h) + var(--ad-top-h) + var(--ad-gap)) 4px calc(var(--nav-h) + var(--ad-bottom-h) + var(--ad-gap));
             background: #f5f7fa;
             color: #222;
             overflow-x: hidden;
@@ -38,16 +38,18 @@
             position: fixed;
             z-index: 1000;
             top: 0;
-            right: 0;
-            left: 0;
+            left: 50%;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            width: calc(50% - 8px);
             height: 62px;
             padding: 0 20px;
+            box-sizing: border-box;
             background: #fff;
             border-bottom: 1px solid #dbe3ee;
             box-shadow: 0 2px 10px rgba(15, 23, 42, .08);
+            transform: translateX(-50%);
         }
 
         .menu-toggle {
@@ -127,17 +129,36 @@
         .tabs-nav {
             position: fixed;
             z-index: 1000;
-            right: 0;
             bottom: 0;
-            left: 0;
+            left: 50%;
             display: flex;
             justify-content: flex-start;
+            width: calc(50% - 8px);
+            box-sizing: border-box;
             margin: 0;
             padding: 8px 12px;
             overflow: hidden;
             background: #fff;
             border-top: 1px solid #dbe3ee;
             box-shadow: 0 -2px 10px rgba(15, 23, 42, .08);
+            transform: translateX(-50%);
+        }
+
+        .tabs-nav .tab-btn {
+            display: inline-flex;
+            flex: 1 1 0;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            min-width: 0;
+            padding: 6px 2px;
+            font-size: .72rem;
+            line-height: 1.1;
+        }
+
+        .tabs-nav .tab-btn i {
+            font-size: 1.05rem;
         }
 
         .tabs {
@@ -153,9 +174,9 @@
 
         .services-grid {
             display: flex;
-            gap: 18px;
+            gap: 1px;
             margin-top: 20px;
-            padding: 4px 2px 14px;
+            padding: 4px 2px 4px;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             scrollbar-width: thin;
@@ -308,10 +329,11 @@
         .series-list {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 14px;
+            gap: 5px;
         }
 
         .series-card {
+            padding: 5px;
             overflow: hidden;
             border: 1px solid #dbe3ee;
             border-radius: 14px;
@@ -382,7 +404,7 @@
         }
 
         .series-card-content {
-            padding: 14px;
+            padding: 5px;
         }
 
         .series-card p {
@@ -404,17 +426,6 @@
         .episodes-view[hidden],
         .episode-view[hidden] {
             display: none;
-        }
-
-        .series-back {
-            margin-bottom: 16px;
-            padding: 9px 13px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            background: #fff;
-            color: #1d4ed8;
-            cursor: pointer;
-            font-weight: 700;
         }
 
         .series-card-description,
@@ -566,7 +577,8 @@
         }
 
         .episode-reader {
-            padding: 20px;
+            margin: 2px;
+            padding: 2px;
             border: 1px solid #dbe3ee;
             border-radius: 14px;
             background: #fff;
@@ -968,9 +980,321 @@
             line-height: 1.6;
         }
 
+        /* ===== Loader professionnel ===== */
+        .page-loader {
+            position: fixed;
+            z-index: 200000;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            background: rgba(245, 247, 250, .78);
+            backdrop-filter: blur(6px);
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity .18s ease, visibility .18s ease;
+        }
+
+        .page-loader.is-visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loader-box {
+            display: grid;
+            justify-items: center;
+            gap: 14px;
+        }
+
+        .loader-mark {
+            position: relative;
+            display: grid;
+            width: 76px;
+            height: 76px;
+            place-items: center;
+        }
+
+        .loader-ring {
+            position: absolute;
+            inset: 0;
+            border: 3px solid #dbeafe;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            animation: bc-spin .8s linear infinite;
+        }
+
+        .loader-ring.inner {
+            inset: 9px;
+            border-width: 2px;
+            border-color: transparent;
+            border-bottom-color: #60a5fa;
+            animation-duration: 1.15s;
+            animation-direction: reverse;
+        }
+
+        .loader-logo {
+            display: grid;
+            width: 44px;
+            height: 44px;
+            place-items: center;
+            border-radius: 13px;
+            background: #2563eb;
+            color: #fff;
+            font-size: 1.25rem;
+            font-weight: 800;
+            box-shadow: 0 6px 14px rgba(37, 99, 235, .4);
+        }
+
+        .loader-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .loader-dots span {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #2563eb;
+            animation: bc-bounce 1s ease-in-out infinite;
+        }
+
+        .loader-dots span:nth-child(2) { animation-delay: .15s; }
+        .loader-dots span:nth-child(3) { animation-delay: .3s; }
+
+        @keyframes bc-spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes bc-bounce {
+            0%, 100% { transform: translateY(0); opacity: .55; }
+            50% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #bfdbfe;
+            border-top-color: #2563eb;
+            border-radius: 50%;
+            vertical-align: -3px;
+            animation: bc-spin .7s linear infinite;
+        }
+
+        .spinner.light {
+            border-color: rgba(255, 255, 255, .45);
+            border-top-color: #fff;
+        }
+
+        .spinner.dark {
+            border-color: #cbd5e1;
+            border-top-color: #475569;
+        }
+
+        .reader-loading .spinner {
+            width: 28px;
+            height: 28px;
+            border-width: 3px;
+            margin-bottom: 14px;
+        }
+
+        .list-loader {
+            grid-column: 1 / -1;
+            display: grid;
+            place-items: center;
+            padding: 44px 0;
+        }
+
+        .btn-loading {
+            position: relative;
+            color: transparent !important;
+            pointer-events: none;
+        }
+
+        .btn-loading > * {
+            visibility: hidden;
+        }
+
+        .btn-loading::after {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 16px;
+            height: 16px;
+            margin: -8px 0 0 -8px;
+            border: 2px solid rgba(255, 255, 255, .5);
+            border-top-color: #fff;
+            border-radius: 50%;
+            content: "";
+            animation: bc-spin .7s linear infinite;
+        }
+
+        /* ===== Partage de série ===== */
+        .series-card-shell {
+            position: relative;
+            display: flex;
+        }
+
+        .series-card-shell .series-card {
+            flex: 1 1 auto;
+        }
+
+        .series-share-btn {
+            position: absolute;
+            z-index: 3;
+            top: 10px;
+            right: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            border: 0;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, .94);
+            color: #1d4ed8;
+            box-shadow: 0 3px 10px rgba(15, 23, 42, .25);
+            cursor: pointer;
+            font: inherit;
+            font-size: .74rem;
+            font-weight: 700;
+            transition: background .15s ease, transform .15s ease;
+        }
+
+        .series-share-btn:hover {
+            background: #fff;
+            transform: translateY(-1px);
+        }
+
+        .series-share-btn i {
+            font-size: .9rem;
+        }
+
+        .series-share-btn.inline {
+            position: static;
+            padding: 9px 14px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            box-shadow: none;
+        }
+
+        .series-share-btn.inline:hover {
+            background: #dbeafe;
+        }
+
+        .episodes-head {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .episodes-head h2 {
+            margin: 0;
+        }
+
+        /* ===== Bouton retour flottant (au-dessus de la pub, jamais sur le footer) ===== */
+        .floating-back {
+            position: fixed;
+            z-index: 100000;
+            right: calc(25% + 16px);
+            bottom: calc(var(--nav-h) + 8px);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 46px;
+            height: 46px;
+            padding: 0;
+            border: 0;
+            border-radius: 50%;
+            background: #1d4ed8;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-size: 1.05rem;
+            box-shadow: 0 10px 22px rgba(29, 78, 216, .45);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+        .floating-back::after {
+            position: absolute;
+            inset: -5px;
+            border: 2px solid rgba(37, 99, 235, .5);
+            border-radius: 50%;
+            content: "";
+            pointer-events: none;
+            animation: bc-back-ring 1.5s ease-out 2;
+        }
+
+        @keyframes bc-back-ring {
+            0% {
+                opacity: .9;
+                transform: scale(.85);
+            }
+            75% {
+                opacity: 0;
+                transform: scale(1.3);
+            }
+            100% {
+                opacity: 0;
+            }
+        }
+
+        .floating-back:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 26px rgba(29, 78, 216, .55);
+        }
+
+        .floating-back[hidden] {
+            display: none;
+        }
+
+        /* ===== Menu latéral ===== */
+        .sidebar .tab-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar .tab-btn i {
+            width: 20px;
+            color: #2563eb;
+            text-align: center;
+        }
+
+        @media (min-width: 901px) {
+            .sidebar {
+                top: calc(var(--header-h) + 10px);
+                bottom: calc(var(--nav-h) + 10px);
+                width: 300px;
+                padding: 18px 16px;
+                border-radius: 0 16px 16px 0;
+            }
+
+            .sidebar h2 {
+                margin-bottom: 14px;
+                font-size: 1.1rem;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .site-header,
+            .tabs-nav {
+                left: 0;
+                width: 100%;
+                transform: none;
+            }
+
+            .floating-back {
+                right: 12px;
+                bottom: calc(var(--nav-h) + 6px);
+            }
+        }
+
         @media (max-width: 600px) {
             body {
-                padding: 0;
+                margin: 1px;
+                padding: 0 4px;
                 padding-top: calc(var(--header-h) + var(--ad-top-h) + var(--ad-gap));
                 padding-bottom: calc(var(--nav-h) + var(--ad-bottom-h) + var(--ad-gap));
             }
@@ -993,7 +1317,7 @@
             }
 
             .tab-content {
-                padding: 14px 16px 24px;
+                padding: 4px 6px 4px;
                 min-width: 0;
             }
 
@@ -1080,7 +1404,10 @@
                 height: 135px;
             }
 
-            .series-card-content,
+            .series-card-content {
+                padding: 5px;
+            }
+
             .episode-card-content {
                 padding: 8px;
             }
@@ -1145,27 +1472,27 @@
     <nav class="tabs-nav" aria-label="Navigation principale">
 
         <a class="tab-btn active" data-tab="home" href="#/home">
-            Accueil
+            <i class="fa-solid fa-house" aria-hidden="true"></i><span>Accueil</span>
         </a>
 
         <a class="tab-btn" data-tab="services" href="#/services">
-            Services
+            <i class="fa-solid fa-layer-group" aria-hidden="true"></i><span>Services</span>
         </a>
 
         <a class="tab-btn" data-tab="contact" href="#/contact">
-            Contact
+            <i class="fa-solid fa-comments" aria-hidden="true"></i><span>Contact</span>
         </a>
 
         <a class="tab-btn" data-tab="bentoul" href="#/bentoul">
-            Bentoul
+            <i class="fa-solid fa-laptop-code" aria-hidden="true"></i><span>Bentoul</span>
         </a>
 
         <a class="tab-btn" data-tab="benamoura" href="#/benamoura">
-            Benamoura
+            <i class="fa-solid fa-heart" aria-hidden="true"></i><span>Benamoura</span>
         </a>
 
         <a class="tab-btn" data-tab="account" href="#/account">
-            Compte
+            <i class="fa-solid fa-user" aria-hidden="true"></i><span>Compte</span>
         </a>
 
     </nav>
@@ -1287,16 +1614,19 @@
         <div class="series-view" id="bentoulSeriesView">
             <p class="series-panel-intro">Découvrez les séries et épisodes consacrés à l'informatique.</p>
             <div class="series-list" id="bentoulSeriesList">
-                <div class="series-empty">Chargement des séries informatiques...</div>
+                <div class="series-empty"><span class="spinner"></span></div>
             </div>
         </div>
         <div class="episodes-view" id="bentoulEpisodesView" hidden>
-            <a class="series-back" data-back-series="bentoul" href="#/bentoul">← Retour aux séries</a>
-            <h2 id="bentoulEpisodesTitle"></h2>
+            <div class="episodes-head">
+                <h2 id="bentoulEpisodesTitle"></h2>
+                <button class="series-share-btn inline" type="button" data-share-selected="bentoul" aria-label="Partager cette série">
+                    <i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>Partager la série</span>
+                </button>
+            </div>
             <div class="episode-list" id="bentoulEpisodesList"></div>
         </div>
         <div class="episode-view" id="bentoulEpisodeView" hidden>
-            <a class="series-back" data-back-episodes="bentoul" href="#/bentoul">← Retour aux épisodes</a>
             <div class="episode-reader" id="bentoulEpisodeReader"></div>
         </div>
     </div>
@@ -1306,16 +1636,19 @@
         <div class="series-view" id="benamouraSeriesView">
             <p class="series-panel-intro">Découvrez les histoires d'amour et les épisodes publiés par Benamoura.</p>
             <div class="series-list" id="benamouraSeriesList">
-                <div class="series-empty">Chargement des séries d'amour...</div>
+                <div class="series-empty"><span class="spinner"></span></div>
             </div>
         </div>
         <div class="episodes-view" id="benamouraEpisodesView" hidden>
-            <a class="series-back" data-back-series="benamoura" href="#/benamoura">← Retour aux séries</a>
-            <h2 id="benamouraEpisodesTitle"></h2>
+            <div class="episodes-head">
+                <h2 id="benamouraEpisodesTitle"></h2>
+                <button class="series-share-btn inline" type="button" data-share-selected="benamoura" aria-label="Partager cette série">
+                    <i class="fa-solid fa-share-nodes" aria-hidden="true"></i><span>Partager la série</span>
+                </button>
+            </div>
             <div class="episode-list" id="benamouraEpisodesList"></div>
         </div>
         <div class="episode-view" id="benamouraEpisodeView" hidden>
-            <a class="series-back" data-back-episodes="benamoura" href="#/benamoura">← Retour aux épisodes</a>
             <div class="episode-reader" id="benamouraEpisodeReader"></div>
         </div>
     </div>
@@ -1390,17 +1723,32 @@
 <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
 <aside class="sidebar" id="sidebar" aria-label="Menu principal">
     <h2>Menu</h2>
-    <a class="tab-btn active" data-tab="home" href="#/home">Accueil</a>
-    <a class="tab-btn" data-tab="services" href="#/services">Services</a>
-    <a class="tab-btn" data-tab="contact" href="#/contact">Contact</a>
-    <a class="tab-btn" data-tab="bentoul" href="#/bentoul">Bentoul</a>
-    <a class="tab-btn" data-tab="benamoura" href="#/benamoura">Benamoura</a>
-    <a class="tab-btn" data-tab="stats" href="#/stats">Statistiques</a>
-    <a class="tab-btn" data-tab="account" href="#/account">Compte</a>
+    <a class="tab-btn active" data-tab="home" href="#/home"><i class="fa-solid fa-house" aria-hidden="true"></i>Accueil</a>
+    <a class="tab-btn" data-tab="services" href="#/services"><i class="fa-solid fa-layer-group" aria-hidden="true"></i>Services</a>
+    <a class="tab-btn" data-tab="contact" href="#/contact"><i class="fa-solid fa-comments" aria-hidden="true"></i>Contact</a>
+    <a class="tab-btn" data-tab="bentoul" href="#/bentoul"><i class="fa-solid fa-laptop-code" aria-hidden="true"></i>Bentoul</a>
+    <a class="tab-btn" data-tab="benamoura" href="#/benamoura"><i class="fa-solid fa-heart" aria-hidden="true"></i>Benamoura</a>
+    <a class="tab-btn" data-tab="stats" href="#/stats"><i class="fa-solid fa-chart-line" aria-hidden="true"></i>Statistiques</a>
+    <a class="tab-btn" data-tab="account" href="#/account"><i class="fa-solid fa-user" aria-hidden="true"></i>Compte</a>
 </aside>
 
-<script src="/tab.js?v=3"></script>
-<script src="/visites.js?v=2"></script>
+<div class="page-loader" id="pageLoader" aria-hidden="true">
+    <div class="loader-box">
+        <div class="loader-mark">
+            <span class="loader-ring"></span>
+            <span class="loader-ring inner"></span>
+            <span class="loader-logo">B</span>
+        </div>
+        <div class="loader-dots"><span></span><span></span><span></span></div>
+    </div>
+</div>
+
+<button class="floating-back" id="floatingBack" type="button" aria-label="Retour" hidden>
+    <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+</button>
+
+<script src="/tab.js?v=5"></script>
+<script src="/visites.js?v=3"></script>
 
 </body>
 </html>

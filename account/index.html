@@ -27,13 +27,15 @@
         .loader { padding:40px; }
         .loader h1 { font-size:1.6rem; margin:0 0 12px; }
         .loader p { opacity:.7; font-size:.95rem; }
+        .bc-spinner { width:34px; height:34px; margin:22px auto 0; border:3px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:bc-spin .8s linear infinite; }
+        @keyframes bc-spin { to { transform:rotate(360deg); } }
     </style>
 </head>
 <body>
     <div class="loader">
         <h1>Mon compte</h1>
         <p>BENTOUL CREATION</p>
-        <p>Chargement…</p>
+        <div class="bc-spinner" role="status" aria-label="Chargement"></div>
     </div>
 </body>
 </html>

@@ -28,6 +28,8 @@
         .loader h1 { font-size:1.6rem; margin:0 0 12px; }
         .loader p { opacity:.7; font-size:.95rem; }
         .loader img { max-width:320px; border-radius:12px; margin-top:20px; }
+        .bc-spinner { width:34px; height:34px; margin:22px auto 0; border:3px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:bc-spin .8s linear infinite; }
+        @keyframes bc-spin { to { transform:rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -35,7 +37,7 @@
         <h1>BENAMOURA</h1>
         <p>Histoires & SMS en série</p>
         <img src="/image/benamoura.jpg" alt="BENAMOURA — Histoires et SMS en série">
-        <p>Chargement…</p>
+        <div class="bc-spinner" role="status" aria-label="Chargement"></div>
     </div>
 </body>
 </html>

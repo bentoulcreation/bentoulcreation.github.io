@@ -24,13 +24,22 @@
 .ad-slot {
     position: fixed;
     z-index: 950;
-    right: 0;
-    left: 0;
+    left: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
+    width: calc(50% - 5px);
     overflow: hidden;
     background: #fff;
+    transform: translateX(-50%);
+}
+
+@media (max-width: 900px) {
+    .ad-slot {
+        left: 0;
+        width: 100%;
+        transform: none;
+    }
 }
 
 .ad-slot::before {
@@ -223,11 +232,6 @@ a.series-card {
 a.episode-open {
     text-decoration: none;
     text-align: center;
-}
-
-a.series-back {
-    display: inline-block;
-    text-decoration: none;
 }
 
 /* Squelettes de chargement */

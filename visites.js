@@ -326,8 +326,8 @@
 
     function loadingHTML() {
         return '<div class="dash-loading">' +
+            '<span class="spinner"></span>' +
             '<div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div>' +
-            '<p class="dash-note">Chargement des statistiques...</p>' +
             '</div>';
     }
 

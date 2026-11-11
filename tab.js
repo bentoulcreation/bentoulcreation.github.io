@@ -61,6 +61,10 @@ const SUBSCRIBE_META = {
     benamoura: { icon: "fa-brands fa-whatsapp", label: "S'abonner", theme: "whatsapp" }
 };
 const SERIES_SPACES = ["bentoul", "benamoura"];
+const CHANNEL_LINKS = {
+    bentoul: "https://whatsapp.com/channel/0029VadhmlpEAKWIRzYyWt0a",
+    benamoura: "https://whatsapp.com/channel/0029Vb6gBha8F2pDLuILTH1o"
+};
 
 /* ===== État ===== */
 const seriesCache = { bentoul: [], benamoura: [] };
@@ -380,18 +384,23 @@ function renderSeries(space) {
             ? `<img src="${escapeHTML(item.image)}" alt="" loading="lazy">`
             : `<span class="series-placeholder">${space === "benamoura" ? "♥" : "⌨"}</span>`;
         const href = `#/${space}/${slugFor(seriesCache[space], item)}`;
-        return `<a class="series-card" href="${href}" aria-label="Ouvrir les épisodes de ${escapeHTML(item.titre || "cette série")}">
-            <div class="series-card-image">
-                ${image}
-                <div class="series-card-overlay">
-                    <h3>${escapeHTML(item.titre || "Série sans titre")}</h3>
-                    <div class="series-card-description">${safeHTML(item.contenu || "Découvrez cette série et ses épisodes.")}</div>
+        return `<div class="series-card-shell">
+            <a class="series-card" href="${href}" aria-label="Ouvrir les épisodes de ${escapeHTML(item.titre || "cette série")}">
+                <div class="series-card-image">
+                    ${image}
+                    <div class="series-card-overlay">
+                        <h3>${escapeHTML(item.titre || "Série sans titre")}</h3>
+                        <div class="series-card-description">${safeHTML(item.contenu || "Découvrez cette série et ses épisodes.")}</div>
+                    </div>
                 </div>
-            </div>
-            <div class="series-card-content">
-                <div class="series-meta"><span><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> ${Number(item.shares) || 0}</span><span><i class="fa-solid fa-eye" aria-hidden="true"></i> ${Number(item.views) || 0}</span></div>
-            </div>
-        </a>`;
+                <div class="series-card-content">
+                    <div class="series-meta"><span><i class="fa-solid fa-share-nodes" aria-hidden="true"></i> ${Number(item.shares) || 0}</span><span><i class="fa-solid fa-eye" aria-hidden="true"></i> ${Number(item.views) || 0}</span></div>
+                </div>
+            </a>
+            <button class="series-share-btn" type="button" data-share-series="${escapeHTML(item.id)}" data-space="${space}" aria-label="Partager la série ${escapeHTML(item.titre || "")}" title="Partager la série">
+                <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+            </button>
+        </div>`;
     }).join("");
 }
 
@@ -416,6 +425,45 @@ function episodeShareURL(space, episode) {
     return shareURL(space,
         series ? slugFor(seriesCache[space], series) : "",
         slugFor(episodeCache[space].items, episode));
+}
+
+function plainText(html) {
+    const template = document.createElement("template");
+    template.innerHTML = String(html || "")
+        .replace(/<br\s*\/?>/gi, " ")
+        .replace(/<\/(p|div|li|h[2-4])>/gi, "$& ");
+    return (template.content.textContent || "").replace(/\s+/g, " ").trim();
+}
+
+function seriesShareMessage(space, series) {
+    const link = shareURL(space, slugFor(seriesCache[space], series));
+    const channel = CHANNEL_LINKS[space];
+    const lines = [
+        (series.titre || "Nouvelle série").trim(),
+        plainText(series.contenu) || "Découvrez cette série et ses épisodes.",
+        `Pour plus de détails, cliquez sur le lien : ${link}`,
+        ""
+    ];
+    if (channel) {
+        lines.push(`Abonnez-vous à ma chaîne pour ne rien manquer de mon prochain épisode : ${channel}`);
+    }
+    return lines.join("\n");
+}
+
+async function shareSeriesText(space, series, button) {
+    if (!series) return;
+    const message = seriesShareMessage(space, series);
+    const copied = await copyText(message);
+    if (!copied) {
+        window.prompt("Copiez le message de partage :", message);
+        return;
+    }
+    if (!button || !button.isConnected) return;
+    const original = button.innerHTML;
+    button.innerHTML = '<i class="fa-solid fa-check" aria-hidden="true"></i><span>Message copié !</span>';
+    setTimeout(() => {
+        if (button.isConnected) button.innerHTML = original;
+    }, 1800);
 }
 
 function episodeActionsHTML(space, episode, cardStyle) {
@@ -479,7 +527,7 @@ function renderEpisodeReader(space) {
         <div class="reader-actions">${readerActionsHTML(space)}</div>
         <div class="comments-box">
             <h3>Commentaires</h3>
-            <div id="${space}CommentsList">Chargement des commentaires...</div>
+            <div id="${space}CommentsList"><span class="spinner dark"></span></div>
             <div class="comment-form">
                 <textarea id="${space}CommentInput" placeholder="Écrire un commentaire..." maxlength="500"></textarea>
                 <button type="button" data-send-comment="${space}">Envoyer</button>
@@ -610,14 +658,23 @@ function activateTab(tab) {
     if (tab === "account") renderAccount();
 }
 
-function setBackLinks(space) {
-    const backSeries = document.querySelector(`[data-back-series="${space}"]`);
-    if (backSeries) backSeries.setAttribute("href", `#/${space}`);
-    const backEpisodes = document.querySelector(`[data-back-episodes="${space}"]`);
-    const series = selectedSeries[space];
-    if (backEpisodes) {
-        backEpisodes.setAttribute("href", series ? `#/${space}/${slugFor(seriesCache[space], series)}` : `#/${space}`);
+/* Bouton retour flottant : visible dans une série (liste des épisodes ou lecture). */
+function updateFloatingBack(tab, seriesSlug, episodeSlug) {
+    const button = document.querySelector("#floatingBack");
+    if (!button) return;
+    if (!SERIES_SPACES.includes(tab) || !seriesSlug) {
+        button.hidden = true;
+        button.dataset.target = "";
+        return;
     }
+    const series = selectedSeries[tab] || findBySlug(seriesCache[tab], seriesSlug);
+    const label = episodeSlug ? "Retour aux épisodes" : "Retour aux séries";
+    button.hidden = false;
+    button.dataset.target = episodeSlug
+        ? (series ? `#/${tab}/${slugFor(seriesCache[tab], series)}` : `#/${tab}`)
+        : `#/${tab}`;
+    button.setAttribute("aria-label", label);
+    button.title = label;
 }
 
 async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
@@ -641,9 +698,9 @@ async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
     showPanel(space, episodeSlug ? "episode" : "episodes");
     if (episodeSlug) {
         document.querySelector(`#${space}EpisodeReader`).innerHTML =
-            '<div class="reader-loading"><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div><p>Chargement de l\'épisode...</p></div>';
+            '<div class="reader-loading"><span class="spinner"></span><div class="skeleton-line"></div><div class="skeleton-line"></div><div class="skeleton-line short"></div></div>';
     } else {
-        document.querySelector(`#${space}EpisodesTitle`).textContent = "Chargement...";
+        document.querySelector(`#${space}EpisodesTitle`).textContent = "";
         document.querySelector(`#${space}EpisodesList`).innerHTML = skeletonCards(3);
     }
 
@@ -666,7 +723,7 @@ async function renderSpaceRoute(space, seriesSlug, episodeSlug, token) {
 
     selectedSeries[space] = series;
     selectedEpisode[space] = null;
-    setBackLinks(space);
+    updateFloatingBack(space, seriesSlug, episodeSlug);
 
     let episodes;
     try {
@@ -717,17 +774,56 @@ function syncAddressWithStaticPage(tab) {
     }
 }
 
+/* ===== Loader global ===== */
+const pageLoader = document.querySelector("#pageLoader");
+const LOADER_MIN_MS = 350;
+let loaderShownAt = 0;
+let loaderHideTimer = null;
+
+function showPageLoader() {
+    if (!pageLoader) return;
+    clearTimeout(loaderHideTimer);
+    loaderShownAt = Date.now();
+    pageLoader.classList.add("is-visible");
+    pageLoader.setAttribute("aria-hidden", "false");
+    loaderHideTimer = setTimeout(hidePageLoader, 60000);
+}
+
+function hidePageLoader() {
+    if (!pageLoader || !pageLoader.classList.contains("is-visible")) return;
+    clearTimeout(loaderHideTimer);
+    const delay = Math.max(0, LOADER_MIN_MS - (Date.now() - loaderShownAt));
+    loaderHideTimer = setTimeout(() => {
+        pageLoader.classList.remove("is-visible");
+        pageLoader.setAttribute("aria-hidden", "true");
+    }, delay);
+}
+
+function setButtonLoading(button, loading) {
+    if (!button) return;
+    button.classList.toggle("btn-loading", loading);
+    button.disabled = loading;
+}
+
 async function applyRoute() {
     const token = ++routeToken;
     const { tab, seriesSlug, episodeSlug } = parseRoute();
+    showPageLoader();
     syncAddressWithStaticPage(tab);
     activateTab(tab);
     updateSubscribe(tab);
+    updateFloatingBack(tab, seriesSlug, episodeSlug);
     applySEO(tab);
     closeSidebar();
     window.scrollTo(0, 0);
     if (SERIES_SPACES.includes(tab)) {
-        await renderSpaceRoute(tab, seriesSlug, episodeSlug, token);
+        try {
+            await renderSpaceRoute(tab, seriesSlug, episodeSlug, token);
+        } finally {
+            if (token === routeToken) hidePageLoader();
+        }
+    } else {
+        hidePageLoader();
     }
 }
 
@@ -811,12 +907,16 @@ async function sendComment(space) {
     const message = input.value.trim();
     const user = getStoredUser();
     const pseudo = user ? (user.username || user.nom || "Visiteur") : "Visiteur";
+    const button = document.querySelector(`[data-send-comment="${space}"]`);
+    setButtonLoading(button, true);
     try {
         await postJSON(SERIES_API_URLS[space], { type: "comment", episodeId: episode.id, pseudo, username: pseudo, message });
         input.value = "";
         loadComments(space);
     } catch (error) {
         alert("Impossible d'envoyer le commentaire pour le moment.");
+    } finally {
+        setButtonLoading(button, false);
     }
 }
 
@@ -887,7 +987,9 @@ async function submitAccountForm(form) {
 
     const data = new URLSearchParams(new FormData(form));
     data.set("action", form.querySelector("[name=nom]") ? "register" : "login");
-    messageBox.textContent = "Chargement...";
+    const submitButton = form.querySelector('button[type="submit"]');
+    setButtonLoading(submitButton, true);
+    messageBox.innerHTML = '<span class="spinner dark"></span>';
 
     try {
         const response = await fetch(USERS_API_URL, {
@@ -917,6 +1019,8 @@ async function submitAccountForm(form) {
         } catch (fallbackError) {
             messageBox.textContent = "Impossible de contacter le serveur users.gs. Vérifiez que le déploiement est accessible à tous.";
         }
+    } finally {
+        setButtonLoading(submitButton, false);
     }
 }
 
@@ -926,6 +1030,7 @@ document.addEventListener("click", function(e) {
         e.preventDefault();
         return;
     }
+    if (e.target.closest('a[href^="#/"]')) showPageLoader();
     const tabControl = e.target.closest("[data-tab]");
     if (tabControl) {
         e.preventDefault();
@@ -935,19 +1040,24 @@ document.addEventListener("click", function(e) {
         return;
     }
 
-    const backSeries = e.target.closest("[data-back-series]");
-    if (backSeries) {
-        e.preventDefault();
-        location.hash = `#/${backSeries.dataset.backSeries}`;
+    const floatingBack = e.target.closest("#floatingBack");
+    if (floatingBack) {
+        if (floatingBack.dataset.target) location.hash = floatingBack.dataset.target;
         return;
     }
 
-    const backEpisodes = e.target.closest("[data-back-episodes]");
-    if (backEpisodes) {
-        e.preventDefault();
-        const space = backEpisodes.dataset.backEpisodes;
-        const series = selectedSeries[space];
-        location.hash = series ? `#/${space}/${slugFor(seriesCache[space], series)}` : `#/${space}`;
+    const shareSelected = e.target.closest("[data-share-selected]");
+    if (shareSelected) {
+        const space = shareSelected.dataset.shareSelected;
+        shareSeriesText(space, selectedSeries[space], shareSelected);
+        return;
+    }
+
+    const shareSeriesButton = e.target.closest("[data-share-series]");
+    if (shareSeriesButton) {
+        const space = shareSeriesButton.dataset.space;
+        const series = seriesCache[space].find(item => String(item.id) === String(shareSeriesButton.dataset.shareSeries));
+        shareSeriesText(space, series, shareSeriesButton);
         return;
     }
 
