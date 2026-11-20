@@ -32,9 +32,11 @@ var SCHEMA = {
   Users: ["id", "email", "name", "passwordHash", "salt", "role", "credits", "bio", "status", "failedAttempts", "lockedUntil", "createdAt", "lastLogin"],
   Sessions: ["token", "userId", "createdAt", "expiresAt"],
   Categories: ["id", "name", "icon", "color", "ordre"],
-  Tips: ["id", "cat", "title", "excerpt", "minutes", "date", "author", "featured", "published", "body", "createdAt", "updatedAt"],
+  Tips: ["id", "cat", "title", "excerpt", "minutes", "date", "author", "featured", "published", "imageUrl", "body", "createdAt", "updatedAt"],
   Series: ["id", "title", "tagline", "author", "genre", "status", "letter", "color1", "color2", "synopsis", "published", "imageUrl", "createdAt"],
   Episodes: ["id", "storyId", "n", "title", "minutes", "date", "body", "published", "cost", "imageUrl", "createdAt"],
+  Courses: ["id", "title", "description", "imageUrl", "published", "createdAt", "updatedAt"],
+  CourseLessons: ["id", "courseId", "n", "title", "body", "published", "createdAt", "updatedAt"],
   Credits: ["id", "date", "userId", "delta", "reason", "balance"],
   Unlocks: ["id", "date", "userId", "storyId", "episodeN", "cost"],
   Settings: ["key", "value"]
@@ -132,6 +134,11 @@ var ACTIONS = {
   adminDeleteStory: actionAdminDeleteStory_,
   adminSaveEpisode: actionAdminSaveEpisode_,
   adminDeleteEpisode: actionAdminDeleteEpisode_,
+  adminCourses: actionAdminCourses_,
+  adminSaveCourse: actionAdminSaveCourse_,
+  adminDeleteCourse: actionAdminDeleteCourse_,
+  adminSaveCourseLesson: actionAdminSaveCourseLesson_,
+  adminDeleteCourseLesson: actionAdminDeleteCourseLesson_,
   adminSettings: actionAdminSettings_,
   adminSaveSettings: actionAdminSaveSettings_,
   adminImportDemo: actionAdminImportDemo_
@@ -180,6 +187,21 @@ function actionBootstrap_(body, token) {
     };
   });
 
+  var lessons = readTable_("CourseLessons");
+  var courses = readTable_("Courses").filter(function (c) { return bool_(c.published); })
+    .sort(function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); })
+    .map(function (c) {
+      return {
+        id: c.id,
+        title: c.title,
+        description: c.description || "",
+        image: c.imageUrl || "",
+        lessons: lessons.filter(function (l) { return l.courseId === c.id; })
+          .sort(function (a, b) { return num_(a.n, 0) - num_(b.n, 0); })
+          .map(function (l) { return { n: num_(l.n, 0), title: l.title, body: json_(l.body, []), published: bool_(l.published) }; })
+      };
+    });
+
   return {
     settings: {
       appName: "BCréation",
@@ -190,7 +212,8 @@ function actionBootstrap_(body, token) {
       return { id: c.id, name: c.name, icon: c.icon || "grid", color: c.color || "#6c5ce7" };
     }),
     tips: tips.map(function (t) { return tipOut_(t); }),
-    stories: storiesOut
+    stories: storiesOut,
+    courses: courses
   };
 }
 
@@ -502,6 +525,7 @@ function actionAdminSaveTip_(body, token) {
     author: String(tip.author || admin.name || "BCréation").trim(),
     featured: !!tip.featured,
     published: tip.published !== false,
+    imageUrl: String(tip.imageUrl || tip.image || "").trim(),
     body: JSON.stringify(Array.isArray(tip.body) ? tip.body : [])
   };
   if (!normalized.date) normalized.date = formatDateFr_(new Date());
@@ -671,6 +695,79 @@ function actionAdminDeleteEpisode_(body, token) {
   var n = num_(body.n, 0);
   deleteWhere_("Episodes", function (e) { return e.storyId === storyId && num_(e.n, 0) === n; });
   deleteWhere_("Unlocks", function (u) { return u.storyId === storyId && num_(u.episodeN, 0) === n; });
+  return { ok: true };
+}
+
+/* ---------------- Admin : cours informatiques ---------------- */
+
+function actionAdminCourses_(body, token) {
+  var admin = sessionUser_(token, true);
+  requireAdmin_(admin);
+  var lessons = readTable_("CourseLessons");
+  return readTable_("Courses").sort(function (a, b) { return String(b.createdAt || "").localeCompare(String(a.createdAt || "")); }).map(function (c) {
+    return {
+      id: c.id,
+      title: c.title,
+      description: c.description || "",
+      image: c.imageUrl || "",
+      published: bool_(c.published),
+      lessons: lessons.filter(function (l) { return l.courseId === c.id; }).sort(function (a, b) { return num_(a.n, 0) - num_(b.n, 0); }).map(function (l) {
+        return { id: l.id, n: num_(l.n, 0), title: l.title, body: json_(l.body, []), published: bool_(l.published) };
+      })
+    };
+  });
+}
+
+function actionAdminSaveCourse_(body, token) {
+  var admin = sessionUser_(token, true);
+  requireAdmin_(admin);
+  var c = body.course || {};
+  var title = String(c.title || "").trim();
+  if (title.length < 3) fail_("Le titre du cours doit contenir au moins 3 caractères.", "validation");
+  var existing = c.id ? readTable_("Courses").filter(function (x) { return x.id === c.id; })[0] : null;
+  var imageUrl = imageUrl_(c.image, "cours-" + title);
+  if (!imageUrl && existing) imageUrl = existing.imageUrl || "";
+  var now = new Date().toISOString();
+  var normalized = { title: title, description: String(c.description || "").trim().slice(0, 200), imageUrl: imageUrl, published: c.published !== false, updatedAt: now };
+  if (existing) { update_("Courses", existing._row, normalized); normalized.id = existing.id; normalized.createdAt = existing.createdAt; }
+  else { normalized.id = c.id || uniqueSlug_("Courses", title); normalized.createdAt = now; append_("Courses", normalized); }
+  normalized.lessons = [];
+  return normalized;
+}
+
+function actionAdminDeleteCourse_(body, token) {
+  var admin = sessionUser_(token, true);
+  requireAdmin_(admin);
+  var id = String(body.id || "");
+  deleteWhere_("CourseLessons", function (l) { return l.courseId === id; });
+  deleteWhere_("Courses", function (c) { return c.id === id; });
+  return { ok: true };
+}
+
+function actionAdminSaveCourseLesson_(body, token) {
+  var admin = sessionUser_(token, true);
+  requireAdmin_(admin);
+  var l = body.lesson || {};
+  var courseId = String(l.courseId || "");
+  var title = String(l.title || "").trim();
+  if (!readTable_("Courses").some(function (c) { return c.id === courseId; })) fail_("Cours introuvable.", "notfound");
+  if (title.length < 2) fail_("Le titre de la leçon est obligatoire.", "validation");
+  var n = Math.max(1, num_(l.n, 1));
+  var rows = readTable_("CourseLessons");
+  var existing = l.id ? rows.filter(function (x) { return x.id === l.id; })[0] : rows.filter(function (x) { return x.courseId === courseId && num_(x.n, 0) === n; })[0];
+  var now = new Date().toISOString();
+  var normalized = { courseId: courseId, n: n, title: title, body: JSON.stringify(Array.isArray(l.body) ? l.body : []), published: l.published !== false, updatedAt: now };
+  if (existing) { update_("CourseLessons", existing._row, normalized); normalized.id = existing.id; normalized.createdAt = existing.createdAt; }
+  else { normalized.id = l.id || uniqueSlug_("CourseLessons", courseId + "-" + n + "-" + title); normalized.createdAt = now; append_("CourseLessons", normalized); }
+  normalized.body = json_(normalized.body, []);
+  return normalized;
+}
+
+function actionAdminDeleteCourseLesson_(body, token) {
+  var admin = sessionUser_(token, true);
+  requireAdmin_(admin);
+  var id = String(body.id || "");
+  deleteWhere_("CourseLessons", function (l) { return l.id === id; });
   return { ok: true };
 }
 
@@ -866,14 +963,15 @@ function ensureImageColumns_(spreadsheetId) {
   var props = PropertiesService.getScriptProperties();
   if (props.getProperty("BC_IMAGE_COLUMNS_READY") === "1") return;
   var ss = SpreadsheetApp.openById(spreadsheetId);
-  ["Series", "Episodes"].forEach(function (name) {
+  ["Tips", "Series", "Episodes"].forEach(function (name) {
     var sh = ss.getSheetByName(name);
     if (!sh) return;
     var last = Math.max(1, sh.getLastColumn());
     var headers = sh.getRange(1, 1, 1, last).getValues()[0].map(String);
     if (headers.indexOf("imageUrl") < 0) {
-      var createdAtIndex = headers.indexOf("createdAt");
-      var column = createdAtIndex >= 0 ? createdAtIndex + 1 : last + 1;
+      var anchor = name === "Tips" ? "body" : "createdAt";
+      var anchorIndex = headers.indexOf(anchor);
+      var column = anchorIndex >= 0 ? anchorIndex + 1 : last + 1;
       if (column <= last) sh.insertColumnBefore(column);
       sh.getRange(1, column).setValue("imageUrl").setFontWeight("bold");
     }

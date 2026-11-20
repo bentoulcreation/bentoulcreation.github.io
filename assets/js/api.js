@@ -7,7 +7,7 @@
 (function () {
   "use strict";
 
-  const API_URL = "https://script.google.com/macros/s/AKfycbyd_sTqZGiuL__cIp8Dk6TaLpmgiRLpC48vG9YdEekkwzcdUFUfloF6H3Rv-eYaK-hDAA/exec"; // ← colle ici l'URL /exec de ton déploiement Apps Script
+  const API_URL = "https://script.google.com/macros/s/AKfycbyixiSXGDpT8HV3WeojC-dtjVYA5gIhy9sHto1aApMtc9UKtPZ_SZYU0dZETq8IO4DSOw/exec"; // ← colle ici l'URL /exec de ton déploiement Apps Script
 
   const TOKEN_KEY = "bcreation:token";
   const DB_KEY = "bcreation:mockdb:v2";

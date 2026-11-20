@@ -94,11 +94,13 @@
     categories: [],
     tips: [],
     stories: [],
+    courses: [],
     settings: { appName: "BCréation", welcomeCredits: 10 },
     profile: null,
     admin: null,
     tipList: null,
     storyList: null,
+    courseList: null,
     userList: null,
     adminSettings: null
   };
@@ -108,6 +110,8 @@
   const catOf = (id) => CAT_MAP[id] || { id: id, name: id || "Divers", icon: "grid", color: "#6c5ce7" };
   const tipById = (id) => App.tips.find((t) => t.id === id) || null;
   const storyById = (id) => App.stories.find((s) => s.id === id) || null;
+  const courseById = (id) => App.courses.find((c) => c.id === id) || null;
+  const lessonOf = (course, n) => (course && course.lessons ? course.lessons.find((l) => Number(l.n) === Number(n)) : null);
   const episodeOf = (story, n) => (story && story.episodes ? story.episodes.find((e) => Number(e.n) === Number(n)) : null);
 
   function episodeIndex(story, n) {
@@ -253,6 +257,12 @@
 
   /* ---------------- Rendu des blocs de contenu ---------------- */
 
+  function inlineHTML(value) {
+    return esc(value)
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[\s(])_([^_]+)_/g, "$1<em>$2</em>");
+  }
+
   function blocksHTML(blocks) {
     if (!Array.isArray(blocks) || !blocks.length) {
       return '<p class="muted-note">Le contenu de cet épisode est en cours de rédaction.</p>';
@@ -260,11 +270,12 @@
     return blocks.map((b) => {
       switch (b.t) {
         case "h": return "<h2>" + esc(b.x) + "</h2>";
-        case "p": return "<p>" + esc(b.x) + "</p>";
-        case "ul": return "<ul>" + (b.items || []).map((i) => "<li>" + esc(i) + "</li>").join("") + "</ul>";
+        case "sub": return "<h3>" + esc(b.x) + "</h3>";
+        case "p": return "<p>" + inlineHTML(b.x) + "</p>";
+        case "ul": return "<ul>" + (b.items || []).map((i) => "<li>" + inlineHTML(i) + "</li>").join("") + "</ul>";
         case "code": return "<pre><code>" + esc(b.x) + "</code></pre>";
-        case "tip": return '<div class="callout">' + icon("sparkles") + "<div>" + esc(b.x) + "</div></div>";
-        case "quote": return "<blockquote>" + esc(b.x) + "</blockquote>";
+        case "tip": return '<div class="callout">' + icon("sparkles") + "<div>" + inlineHTML(b.x) + "</div></div>";
+        case "quote": return "<blockquote>" + inlineHTML(b.x) + "</blockquote>";
         default: return "";
       }
     }).join("");
@@ -273,11 +284,41 @@
   function blocksToText(blocks) {
     return (blocks || []).map((b) => {
       if (b.t === "h") return "## " + b.x;
+      if (b.t === "sub") return "### " + b.x;
       if (b.t === "ul") return (b.items || []).map((i) => "- " + i).join("\n");
       if (b.t === "code") return "```\n" + b.x + "\n```";
       if (b.t === "quote" || b.t === "tip") return "> " + b.x;
       return b.x;
     }).join("\n\n");
+  }
+
+  function blocksToEditorHTML(blocks) {
+    return (blocks || []).map((b) => {
+      if (b.t === "h") return "<h2>" + esc(b.x) + "</h2>";
+      if (b.t === "sub") return "<h3>" + esc(b.x) + "</h3>";
+      if (b.t === "ul") return "<ul>" + (b.items || []).map((i) => "<li>" + inlineHTML(i) + "</li>").join("") + "</ul>";
+      if (b.t === "quote") return "<blockquote>" + inlineHTML(b.x) + "</blockquote>";
+      if (b.t === "code") return "<pre><code>" + esc(b.x) + "</code></pre>";
+      return "<p>" + inlineHTML(b.x || "") + "</p>";
+    }).join("");
+  }
+
+  function editorHTMLToText(editor) {
+    const html = editor.innerHTML
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<strong\b[^>]*>/gi, "**").replace(/<\/strong>/gi, "**")
+      .replace(/<b\b[^>]*>/gi, "**").replace(/<\/b>/gi, "**")
+      .replace(/<em\b[^>]*>/gi, "_").replace(/<\/em>/gi, "_")
+      .replace(/<i\b[^>]*>/gi, "_").replace(/<\/i>/gi, "_")
+      .replace(/<h2\b[^>]*>/gi, "\n## ").replace(/<\/h2>/gi, "\n")
+      .replace(/<h3\b[^>]*>/gi, "\n### ").replace(/<\/h3>/gi, "\n")
+      .replace(/<li\b[^>]*>/gi, "\n- ").replace(/<\/li>/gi, "")
+      .replace(/<blockquote\b[^>]*>/gi, "\n> ").replace(/<\/blockquote>/gi, "\n")
+      .replace(/<p\b[^>]*>/gi, "\n").replace(/<\/p>/gi, "\n")
+      .replace(/<div\b[^>]*>/gi, "\n").replace(/<\/div>/gi, "\n");
+    const holder = document.createElement("div");
+    holder.innerHTML = html;
+    return holder.textContent.replace(/\u00a0/g, " ").replace(/\n{3,}/g, "\n\n").trim();
   }
 
   function textToBlocks(text) {
@@ -307,6 +348,7 @@
       }
       if (/^```/.test(line)) { flushPara(); flushList(); code = []; return; }
       if (!line.trim()) { flushPara(); flushList(); return; }
+      if (/^###\s+/.test(line)) { flushPara(); flushList(); out.push({ t: "sub", x: line.replace(/^###\s+/, "") }); return; }
       if (/^##\s+/.test(line)) { flushPara(); flushList(); out.push({ t: "h", x: line.replace(/^##\s+/, "") }); return; }
       if (/^[-*]\s+/.test(line)) { flushPara(); list.push(line.replace(/^[-*]\s+/, "")); return; }
       if (/^>\s?/.test(line)) { flushPara(); flushList(); out.push({ t: "quote", x: line.replace(/^>\s?/, "") }); return; }
@@ -398,6 +440,14 @@
     "</div>";
   }
 
+  function isCourse(story) {
+    return /cours|informatique/i.test(String(story && story.genre || ""));
+  }
+
+  function courseStories() {
+    return App.stories.filter(isCourse);
+  }
+
   function emptyState(title, text, goRoute, goLabel) {
     return '<div class="empty">' + icon("sparkles") +
       "<strong>" + esc(title) + "</strong><p>" + esc(text) + "</p>" +
@@ -439,7 +489,9 @@
     return '<section class="screen">' +
       '<div class="greet">' +
         '<p class="greet-hi">' + greeting + (App.user ? ", " + esc(App.user.name.split(" ")[0]) : "") + "</p>" +
-        "<h1>Qu'est-ce qu'on partage aujourd'hui ?</h1>" +
+        '<span class="greet-kicker">L’espace BCréation</span>' +
+        "<h1>Qu'est-ce qu'on partage <span>aujourd'hui&nbsp;?</span></h1>" +
+        '<p class="greet-lead">Des astuces utiles, des idées simples et des histoires à découvrir au quotidien.</p>' +
         (App.user ? '<div class="greet-meta">' + creditPill(App.user.credits) + "</div>" : "") +
       "</div>" +
 
@@ -610,6 +662,32 @@
     "</section>";
   }
 
+  function renderCourses() {
+    const courses = App.courses || [];
+    return '<section class="screen">' +
+      '<h1 class="screen-title">Cours informatiques</h1>' +
+      '<p class="screen-sub">Apprends étape par étape grâce à des leçons courtes et pratiques.</p>' +
+      (courses.length
+        ? '<div class="course-grid">' + courses.map((course) => '<button class="course-card" data-course="' + esc(course.id) + '">' + (itemImage(course) ? mediaImage(itemImage(course), "course-card-cover", course.title) : '<span class="course-card-cover course-card-placeholder">' + esc(initials(course.title)) + '</span>') + '<span class="course-card-content"><strong class="course-card-title">' + esc(course.title) + '</strong><span class="course-card-description">' + esc(course.description) + '</span><span class="course-card-footer"><span>' + plural((course.lessons || []).length, "leçon") + '</span>' + icon("chevron") + '</span></span></button>').join("") + "</div>"
+        : emptyState("Aucun cours pour l'instant", "Les prochains cours seront bientôt disponibles.", "home", "Retour à l'accueil")) +
+    "</section>";
+  }
+
+  function renderCourse(params) {
+    const c = courseById(params.id);
+    if (!c) return renderNotFound();
+    const lessons = (c.lessons || []).filter((l) => l.published);
+    return '<section class="screen"><div class="story-hero course-hero">' + (itemImage(c) ? mediaImage(itemImage(c), "course-cover", c.title) : "") + '<span class="genre">Cours informatique</span><h1>' + esc(c.title) + '</h1><p>' + esc(c.description) + '</p><div class="hero-stats"><span>' + icon("book") + plural(lessons.length, "leçon") + '</span><span>Progression libre</span></div></div><div class="section-head"><h2>Leçons</h2><span class="section-count">' + lessons.length + '</span></div><div class="ep-list">' + (lessons.length ? lessons.map((l) => '<button class="ep-row" data-course-lesson="' + esc(c.id) + ':' + l.n + '"><span class="ep-num">' + l.n + '</span><span class="ep-row-main"><span class="ep-row-title">' + esc(l.title) + '</span><span class="ep-row-meta">Leçon ' + l.n + '</span></span>' + icon("chevron") + '</button>').join("") : '<p class="muted-note">Aucune leçon publiée pour le moment.</p>') + '</div></section>';
+  }
+
+  function renderCourseLesson(params) {
+    const c = courseById(params.courseId);
+    const l = lessonOf(c, params.n);
+    if (!c || !l || !l.published) return renderNotFound();
+    const next = (c.lessons || []).filter((x) => x.published && Number(x.n) > Number(l.n)).sort((a, b) => a.n - b.n)[0];
+    return '<section class="screen reader"><button class="reader-series" data-course="' + esc(c.id) + '">' + icon("book") + esc(c.title) + '</button><h1>' + esc(l.title) + '</h1><div class="meta-row"><span>Leçon ' + l.n + '</span><span>Cours informatique</span></div><div class="prose">' + blocksHTML(l.body || []) + '</div><div class="reader-end">' + (next ? '<button class="btn-primary" data-course-lesson="' + esc(c.id) + ':' + next.n + '">Leçon suivante ' + icon("chevron") + '</button>' : '<div class="end-note"><div><strong>Fin du cours pour le moment</strong><p>De nouvelles leçons pourront être ajoutées prochainement.</p></div></div>') + '</div></section>';
+  }
+
   function renderStory(params) {
     const s = storyById(params.id);
     if (!s) return renderNotFound();
@@ -640,14 +718,15 @@
       "</button>";
     }).join("");
 
+    const course = isCourse(s);
     return '<section class="screen">' +
       '<div class="story-hero" style="--g1:' + esc(s.colors[0]) + ";--g2:" + esc(s.colors[1]) + '">' +
-        '<span class="genre">' + esc(s.genre) + "</span>" +
+        '<span class="genre">' + esc(course ? "Cours informatique" : s.genre) + "</span>" +
         "<h1>" + esc(s.title) + "</h1>" +
         "<p>" + esc(s.tagline) + "</p>" +
         '<div class="hero-stats">' +
           "<span>" + icon("user") + esc(s.author) + "</span>" +
-          "<span>" + icon("book") + online + "/" + s.episodes.length + " épisodes</span>" +
+          "<span>" + icon("book") + online + "/" + s.episodes.length + (course ? " leçons" : " épisodes") + "</span>" +
           "<span>" + esc(s.status) + "</span>" +
         "</div>" +
       "</div>" +
@@ -663,7 +742,7 @@
       '<div class="section-head"><h2>Synopsis</h2></div>' +
       '<p class="synopsis">' + esc(s.synopsis) + "</p>" +
 
-      '<div class="section-head"><h2>Épisodes</h2><span class="section-count">' + online + " disponibles</span></div>" +
+      '<div class="section-head"><h2>' + (course ? "Leçons" : "Épisodes") + '</h2><span class="section-count">' + online + " disponibles</span></div>" +
       '<div class="ep-list">' + rows + "</div>" +
 
       '<div class="end-note" style="margin-top:18px">' + icon("clock") +
@@ -719,11 +798,12 @@
       nextHTML = '<button class="btn-primary" data-ep="' + esc(s.id) + ":" + next.n + '">Lire l\'épisode ' + next.n + icon("chevron") + "</button>";
     }
 
+    const course = isCourse(s);
     return '<section class="screen reader">' +
       '<button class="reader-series" data-story="' + esc(s.id) + '">' + icon("book") + esc(s.title) + "</button>" +
       "<h1>" + esc(ep.title) + "</h1>" +
       '<div class="meta-row">' +
-        "<span>Épisode " + ep.n + "</span>" +
+        "<span>" + (course ? "Leçon " : "Épisode ") + ep.n + "</span>" +
         "<span>" + icon("clock") + ep.minutes + " min</span>" +
         "<span>" + esc(ep.date) + "</span>" +
       "</div>" +
@@ -967,6 +1047,7 @@
       '<div class="admin-links">' +
         '<button class="admin-link" data-go="adminTips"><span class="al-ic">' + icon("bulb") + "</span><span><strong>Astuces</strong><small>Créer et publier des fiches</small></span>" + icon("chevron") + "</button>" +
         '<button class="admin-link" data-go="adminStories"><span class="al-ic love">' + icon("book") + "</span><span><strong>Séries &amp; épisodes</strong><small>Gérer les histoires et les épisodes premium</small></span>" + icon("chevron") + "</button>" +
+        '<button class="admin-link" data-go="adminCourses"><span class="al-ic green">' + icon("monitor") + "</span><span><strong>Cours informatiques</strong><small>Créer des cours et leurs leçons</small></span>" + icon("chevron") + "</button>" +
         '<button class="admin-link" data-go="adminUsers"><span class="al-ic green">' + icon("user") + "</span><span><strong>Utilisateurs</strong><small>Rôles, statut et crédits</small></span>" + icon("chevron") + "</button>" +
         '<button class="admin-link" data-go="adminSettings"><span class="al-ic orange">' + icon("grid") + "</span><span><strong>Réglages</strong><small>Crédits de bienvenue et contenu de démo</small></span>" + icon("chevron") + "</button>" +
       "</div>" +
@@ -1041,9 +1122,9 @@
           '<label class="check-field"><input type="checkbox" name="featured"' + (v.featured ? " checked" : "") + '><span>À la une</span></label>' +
           '<label class="check-field"><input type="checkbox" name="published"' + (v.published ? " checked" : "") + '><span>Publié</span></label>' +
         "</div>" +
-        '<div class="editor-shell"><div class="editor-toolbar"><button type="button" data-editor="bold"><b>G</b></button><button type="button" data-editor="italic"><i>I</i></button><button type="button" data-editor="title">Titre</button><button type="button" data-editor="quote">Citation</button><button type="button" data-editor="list">Liste</button><button type="button" data-editor="paragraph">Paragraphe</button></div>' +
-        '<label class="field"><span>Contenu</span><textarea class="input mono editor-content" name="body" rows="16">' + esc(blocksToText(v.body)) + "</textarea></label></div>" +
-        '<p class="body-help">Une ligne vide sépare les paragraphes. <code>## Titre</code>, <code>- point</code>, <code>&gt; citation</code>, <code>```</code> pour un bloc de code.</p>' +
+         '<div class="editor-shell"><div class="editor-toolbar"><button type="button" data-editor="bold">Gras</button><button type="button" data-editor="italic">Italique</button><button type="button" data-editor="title">Titre</button><button type="button" data-editor="subtitle">Sous-titre</button><button type="button" data-editor="paragraph">Normal</button><button type="button" data-editor="list">Liste</button></div>' +
+         '<label class="field"><span>Contenu</span><div class="input editor-content" contenteditable="true" role="textbox" aria-multiline="true">' + blocksToEditorHTML(v.body) + '</div><textarea class="editor-source" name="body" hidden>' + esc(blocksToText(v.body)) + "</textarea></label></div>" +
+         '<p class="body-help">Sélectionne un texte, puis utilise la barre d’outils pour le mettre en forme.</p>' +
         '<p class="form-error" role="alert"></p>' +
         '<button class="btn-primary" type="submit">' + (t ? "Enregistrer les modifications" : "Créer l'astuce") + "</button>" +
       "</form>" +
@@ -1071,28 +1152,57 @@
       : '<p class="muted-note">Aucune série. Crée la première.</p>';
 
     return '<section class="screen">' +
-      '<div class="admin-topbar"><h1 class="screen-title">Séries</h1>' + adminBackBtn() + "</div>" +
-      '<p class="screen-sub">Une série contient des épisodes, gratuits ou premium.</p>' +
-      '<button class="btn-primary" data-go="adminStoryForm">' + icon("sparkles") + "Nouvelle série</button>" +
+      '<div class="admin-topbar"><h1 class="screen-title">Séries &amp; cours</h1>' + adminBackBtn() + "</div>" +
+      '<p class="screen-sub">Crée des séries ou des cours avec leurs épisodes et leçons.</p>' +
+      '<div class="story-actions"><button class="btn-primary" data-go="adminStoryForm">' + icon("sparkles") + "Nouvelle série</button>" +
+      '<button class="btn-ghost" data-nav="adminStoryForm" data-course="1">' + icon("monitor") + "Nouveau cours</button></div>" +
       '<div class="admin-list">' + items + "</div>" +
     "</section>";
   }
 
+  function renderAdminCourses() {
+    const list = App.courseList || [];
+    const items = list.length ? list.map((c) => '<div class="admin-item"><div class="admin-item-top"><strong>' + esc(c.title) + '</strong>' + (c.published ? badge("Publié", "ok") : badge("Brouillon", "muted")) + '</div><div class="admin-item-meta">' + plural((c.lessons || []).length, "leçon") + '</div><div class="admin-actions"><button class="admin-btn" data-nav="adminCourse" data-id="' + esc(c.id) + '">Gérer les leçons</button><button class="admin-btn" data-nav="adminCourseForm" data-id="' + esc(c.id) + '">Modifier</button><button class="admin-btn danger" data-del-course="' + esc(c.id) + '">Supprimer</button></div></div>').join("") : '<p class="muted-note">Aucun cours. Crée ton premier cours informatique.</p>';
+    return '<section class="screen"><div class="admin-topbar"><h1 class="screen-title">Cours informatiques</h1>' + adminBackBtn() + '</div><p class="screen-sub">Espace indépendant des séries pour publier des cours et leurs leçons.</p><button class="btn-primary" data-go="adminCourseForm">' + icon("monitor") + 'Nouveau cours</button><div class="admin-list">' + items + '</div></section>';
+  }
+
+  function renderAdminCourseForm(params) {
+    const c = params.id ? (App.courseList || []).find((x) => x.id === params.id) : null;
+    const v = c || { id: "", title: "", description: "", published: true };
+    return '<section class="screen"><div class="admin-topbar"><h1 class="screen-title">' + (c ? "Modifier le cours" : "Nouveau cours") + '</h1>' + adminBackBtn() + '</div><form class="form" data-form="course"><input type="hidden" name="id" value="' + esc(v.id) + '"><label class="field"><span>Titre du cours</span><input class="input" name="title" maxlength="90" value="' + esc(v.title) + '" required></label><label class="field"><span>Description courte (200 caractères maximum)</span><textarea class="input" name="description" rows="3" maxlength="200">' + esc(v.description) + '</textarea></label><label class="field"><span>Image du cours</span><input class="input" type="file" name="image" accept="image/*"></label><label class="check-field"><input type="checkbox" name="published"' + (v.published ? ' checked' : '') + '><span>Publié</span></label><p class="form-error" role="alert"></p><button class="btn-primary" type="submit">' + (c ? "Enregistrer" : "Créer le cours") + '</button></form></section>';
+  }
+
+  function renderAdminCourse(params) {
+    const c = (App.courseList || []).find((x) => x.id === params.id);
+    if (!c) return renderNotFound();
+    const rows = (c.lessons || []).map((l) => '<div class="admin-item"><div class="admin-item-top"><strong>Leçon ' + l.n + ' · ' + esc(l.title) + '</strong>' + (l.published ? badge("Publié", "ok") : badge("Brouillon", "muted")) + '</div><div class="admin-actions"><button class="admin-btn" data-nav="adminCourseLessonForm" data-id="' + esc(c.id) + '" data-n="' + l.n + '">Modifier</button><button class="admin-btn danger" data-del-course-lesson="' + esc(c.id) + ':' + l.n + '">Supprimer</button></div></div>').join("");
+    return '<section class="screen"><div class="admin-topbar"><h1 class="screen-title">' + esc(c.title) + '</h1>' + adminBackBtn() + '</div><p class="screen-sub">Gestion indépendante des leçons du cours.</p><button class="btn-primary" data-nav="adminCourseLessonForm" data-id="' + esc(c.id) + '">' + icon("sparkles") + 'Nouvelle leçon</button><div class="admin-list">' + (rows || '<p class="muted-note">Aucune leçon pour ce cours.</p>') + '</div></section>';
+  }
+
+  function renderAdminCourseLessonForm(params) {
+    const c = (App.courseList || []).find((x) => x.id === params.id);
+    if (!c) return renderNotFound();
+    const l = params.n ? (c.lessons || []).find((x) => Number(x.n) === Number(params.n)) : null;
+    const v = l || { n: (c.lessons || []).length + 1, title: "", body: [], published: true };
+    return '<section class="screen"><div class="admin-topbar"><h1 class="screen-title">' + (l ? "Modifier la leçon" : "Nouvelle leçon") + '</h1>' + adminBackBtn() + '</div><form class="form" data-form="courseLesson"><input type="hidden" name="courseId" value="' + esc(c.id) + '"><input type="hidden" name="n" value="' + v.n + '"><label class="field"><span>Titre de la leçon</span><input class="input" name="title" maxlength="100" value="' + esc(v.title) + '" required></label><div class="editor-shell"><div class="editor-toolbar"><button type="button" data-editor="bold">Gras</button><button type="button" data-editor="italic">Italique</button><button type="button" data-editor="title">Titre</button><button type="button" data-editor="subtitle">Sous-titre</button><button type="button" data-editor="paragraph">Normal</button><button type="button" data-editor="list">Liste</button></div><label class="field"><span>Contenu</span><div class="input editor-content" contenteditable="true" role="textbox" aria-multiline="true">' + blocksToEditorHTML(v.body) + '</div><textarea class="editor-source" name="body" hidden>' + esc(blocksToText(v.body)) + '</textarea></label></div><label class="check-field"><input type="checkbox" name="published"' + (v.published ? ' checked' : '') + '><span>Publié</span></label><p class="form-error" role="alert"></p><button class="btn-primary" type="submit">Enregistrer la leçon</button></form></section>';
+  }
+
   function renderAdminStoryForm(params) {
     const s = params.id ? (App.storyList || []).find((x) => x.id === params.id) : null;
+    const course = !!(params.course || (s && isCourse(s)));
     const v = s || {
       id: "", title: "", tagline: "", author: (App.user && App.user.name) || "BCréation",
-      genre: "Romance", status: "En cours", letter: "", synopsis: "",
+      genre: course ? "Cours informatique" : "Romance", status: "En cours", letter: "", synopsis: "",
       colors: ["#ff7a9c", "#7c3aed"], published: true
     };
 
     return '<section class="screen">' +
-      '<div class="admin-topbar"><h1 class="screen-title">' + (s ? "Modifier la série" : "Nouvelle série") + "</h1>" + adminBackBtn() + "</div>" +
+      '<div class="admin-topbar"><h1 class="screen-title">' + (s ? (course ? "Modifier le cours" : "Modifier la série") : (course ? "Nouveau cours" : "Nouvelle série")) + "</h1>" + adminBackBtn() + "</div>" +
       '<form class="form" data-form="story">' +
         '<input type="hidden" name="id" value="' + esc(v.id) + '">' +
         '<label class="field"><span>Titre</span><input class="input" name="title" maxlength="70" value="' + esc(v.title) + '" required></label>' +
-        '<label class="field"><span>Accroche</span><input class="input" name="tagline" maxlength="120" value="' + esc(v.tagline) + '"></label>' +
-        '<label class="field"><span>Image de la série</span><input class="input" type="file" name="image" accept="image/*"></label>' +
+        '<label class="field"><span>' + (course ? "Description courte (200 caractères maximum)" : "Accroche") + '</span><input class="input" name="tagline" maxlength="200" value="' + esc(v.tagline) + '"></label>' +
+        '<label class="field"><span>Image du ' + (course ? "cours" : "la série") + '</span><input class="input" type="file" name="image" accept="image/*"></label>' +
         '<div class="field-row">' +
           '<label class="field"><span>Auteur</span><input class="input" name="author" maxlength="40" value="' + esc(v.author) + '"></label>' +
           '<label class="field"><span>Genre</span><input class="input" name="genre" maxlength="30" value="' + esc(v.genre) + '"></label>' +
@@ -1110,7 +1220,7 @@
           '<label class="check-field"><input type="checkbox" name="published"' + (v.published ? " checked" : "") + '><span>Publiée</span></label>' +
         "</div>" +
         '<p class="form-error" role="alert"></p>' +
-        '<button class="btn-primary" type="submit">' + (s ? "Enregistrer les modifications" : "Créer la série") + "</button>" +
+        '<button class="btn-primary" type="submit">' + (s ? "Enregistrer les modifications" : (course ? "Créer le cours" : "Créer la série")) + "</button>" +
       "</form>" +
     "</section>";
   }
@@ -1122,7 +1232,7 @@
     const rows = s.episodes.length
       ? s.episodes.map((ep) =>
           '<div class="admin-item">' +
-            '<div class="admin-item-top"><strong>Épisode ' + ep.n + " · " + esc(ep.title) + "</strong>" +
+            '<div class="admin-item-top"><strong>' + (isCourse(s) ? "Leçon " : "Épisode ") + ep.n + " · " + esc(ep.title) + "</strong>" +
               (ep.published ? badge("Publié", "ok") : badge("Brouillon", "muted")) +
               (ep.cost > 0 ? badge(ep.cost + " crédits", "warn") : badge("Gratuit", "muted")) +
             "</div>" +
@@ -1133,25 +1243,25 @@
             "</div>" +
           "</div>"
         ).join("")
-      : '<p class="muted-note">Aucun épisode pour cette série.</p>';
+      : '<p class="muted-note">Aucune ' + (isCourse(s) ? "leçon pour ce cours." : "épisode pour cette série.") + "</p>";
 
     return '<section class="screen">' +
       '<div class="story-hero" style="--g1:' + esc(s.colors[0]) + ";--g2:" + esc(s.colors[1]) + '">' +
         '<span class="genre">' + esc(s.genre) + (s.published ? "" : " · brouillon") + "</span>" +
         "<h1>" + esc(s.title) + "</h1>" +
         "<p>" + esc(s.tagline) + "</p>" +
-        '<div class="hero-stats"><span>' + icon("book") + plural(s.episodes.length, "épisode") + "</span><span>" + esc(s.status) + "</span></div>" +
+        '<div class="hero-stats"><span>' + icon("book") + plural(s.episodes.length, isCourse(s) ? "leçon" : "épisode") + "</span><span>" + esc(s.status) + "</span></div>" +
       "</div>" +
 
       '<div class="story-actions">' +
-        '<button class="pill-btn" data-nav="adminEpisodeForm" data-id="' + esc(s.id) + '">' + icon("sparkles") + "Nouvel épisode</button>" +
+        '<button class="pill-btn" data-nav="adminEpisodeForm" data-id="' + esc(s.id) + '">' + icon("sparkles") + "Nouvelle " + (isCourse(s) ? "leçon" : "épisode") + "</button>" +
         '<button class="pill-btn" data-nav="adminStoryForm" data-id="' + esc(s.id) + '">' + icon("code") + "Modifier</button>" +
       "</div>" +
       '<div class="story-actions" style="margin-top:8px">' +
         '<button class="pill-btn" data-story="' + esc(s.id) + '">' + icon("book") + "Voir la fiche publique</button>" +
       "</div>" +
 
-      '<div class="section-head"><h2>Épisodes</h2><span class="section-count">' + s.episodes.length + "</span></div>" +
+      '<div class="section-head"><h2>' + (isCourse(s) ? "Leçons" : "Épisodes") + '</h2><span class="section-count">' + s.episodes.length + "</span></div>" +
       '<div class="admin-list">' + rows + "</div>" +
       '<div class="admin-topbar" style="margin-top:18px">' + adminBackBtn() + "</div>" +
     "</section>";
@@ -1167,13 +1277,14 @@
       n: nextN, title: "", minutes: 5, date: todayFR(), cost: 0, published: true, body: []
     };
 
+    const course = isCourse(s);
     return '<section class="screen">' +
-      '<div class="admin-topbar"><h1 class="screen-title">' + (ep ? "Épisode " + ep.n : "Nouvel épisode") + "</h1>" + adminBackBtn() + "</div>" +
+      '<div class="admin-topbar"><h1 class="screen-title">' + (ep ? (course ? "Leçon " : "Épisode ") + ep.n : (course ? "Nouvelle leçon" : "Nouvel épisode")) + "</h1>" + adminBackBtn() + "</div>" +
       '<p class="screen-sub">' + esc(s.title) + "</p>" +
       '<form class="form" data-form="episode">' +
         '<input type="hidden" name="storyId" value="' + esc(s.id) + '">' +
         '<input type="hidden" name="n" value="' + (ep ? ep.n : 0) + '">' +
-        '<label class="field"><span>Titre de l\'épisode</span><input class="input" name="title" maxlength="90" value="' + esc(v.title) + '" required></label>' +
+        '<label class="field"><span>Titre de la ' + (course ? "leçon" : "l\'épisode") + '</span><input class="input" name="title" maxlength="90" value="' + esc(v.title) + '" required></label>' +
         '<label class="field"><span>Image de l’épisode</span><input class="input" type="file" name="image" accept="image/*"></label>' +
         '<div class="field-row">' +
           '<label class="field"><span>Minutes</span><input class="input" type="number" name="minutes" min="1" max="120" value="' + Number(v.minutes) + '"></label>' +
@@ -1183,10 +1294,10 @@
         '<div class="check-row">' +
           '<label class="check-field"><input type="checkbox" name="published"' + (v.published ? " checked" : "") + '><span>Publié</span></label>' +
         "</div>" +
-        '<div class="editor-shell"><div class="editor-toolbar"><button type="button" data-editor="bold"><b>G</b></button><button type="button" data-editor="italic"><i>I</i></button><button type="button" data-editor="title">Titre</button><button type="button" data-editor="quote">Citation</button><button type="button" data-editor="list">Liste</button><button type="button" data-editor="paragraph">Paragraphe</button></div><label class="field"><span>Contenu</span><textarea class="input mono editor-content" name="body" rows="16">' + esc(blocksToText(v.body)) + "</textarea></label></div>" +
-        '<p class="body-help">Une ligne vide sépare les paragraphes. <code>## Titre</code>, <code>- point</code>, <code>&gt; citation</code>, <code>```</code> pour un bloc de code.</p>' +
+         '<div class="editor-shell"><div class="editor-toolbar"><button type="button" data-editor="bold">Gras</button><button type="button" data-editor="italic">Italique</button><button type="button" data-editor="title">Titre</button><button type="button" data-editor="subtitle">Sous-titre</button><button type="button" data-editor="paragraph">Normal</button><button type="button" data-editor="list">Liste</button></div><label class="field"><span>Contenu</span><div class="input editor-content" contenteditable="true" role="textbox" aria-multiline="true">' + blocksToEditorHTML(v.body) + '</div><textarea class="editor-source" name="body" hidden>' + esc(blocksToText(v.body)) + "</textarea></label></div>" +
+         '<p class="body-help">Sélectionne un texte, puis utilise la barre d’outils pour le mettre en forme.</p>' +
         '<p class="form-error" role="alert"></p>' +
-        '<button class="btn-primary" type="submit">' + (ep ? "Enregistrer l'épisode" : "Créer l'épisode") + "</button>" +
+        '<button class="btn-primary" type="submit">' + (ep ? "Enregistrer la " + (course ? "leçon" : "épisode") : "Créer la " + (course ? "leçon" : "l'épisode")) + "</button>" +
       "</form>" +
     "</section>";
   }
@@ -1267,6 +1378,9 @@
     tips: renderTips,
     tip: renderTip,
     stories: renderStories,
+    courses: renderCourses,
+    course: renderCourse,
+    courseLesson: renderCourseLesson,
     story: renderStory,
     episode: renderEpisode,
     favorites: renderFavorites,
@@ -1280,6 +1394,10 @@
     adminTips: renderAdminTips,
     adminTipForm: renderAdminTipForm,
     adminStories: renderAdminStories,
+    adminCourses: renderAdminCourses,
+    adminCourseForm: renderAdminCourseForm,
+    adminCourse: renderAdminCourse,
+    adminCourseLessonForm: renderAdminCourseLessonForm,
     adminStoryForm: renderAdminStoryForm,
     adminStory: renderAdminStory,
     adminEpisodeForm: renderAdminEpisodeForm,
@@ -1287,9 +1405,9 @@
     adminSettings: renderAdminSettings
   };
 
-  const ROOTS = ["home", "tips", "stories", "favorites", "profile", "about", "login", "signup"];
+  const ROOTS = ["home", "tips", "stories", "courses", "favorites", "profile", "about", "login", "signup"];
 
-  const ADMIN_ROUTES = ["admin", "adminTips", "adminTipForm", "adminStories", "adminStoryForm", "adminStory", "adminEpisodeForm", "adminUsers", "adminSettings"];
+  const ADMIN_ROUTES = ["admin", "adminTips", "adminTipForm", "adminStories", "adminStoryForm", "adminStory", "adminEpisodeForm", "adminCourses", "adminCourseForm", "adminCourse", "adminCourseLessonForm", "adminUsers", "adminSettings"];
   const USER_ROUTES = ["profile", "profileEdit", "passwordForm"];
 
   let stack = [{ name: "home", params: {} }];
@@ -1298,6 +1416,7 @@
   function tabFor(name) {
     if (name === "tip") return "tips";
     if (name === "story" || name === "episode") return "stories";
+    if (name === "course" || name === "courseLesson") return "courses";
     if (name === "login" || name === "signup") return "profile";
     if (ADMIN_ROUTES.indexOf(name) >= 0) return "profile";
     return ROOTS.indexOf(name) >= 0 ? name : "home";
@@ -1312,6 +1431,7 @@
       case "home": return { title: App.settings.appName || "BCréation", sub: "Astuces & histoires" };
       case "tips": return { title: "Astuces", sub: "" };
       case "stories": return { title: "Histoires", sub: "" };
+      case "courses": return { title: "Cours informatiques", sub: "" };
       case "favorites": return { title: "Mes favoris", sub: "" };
       case "profile": return { title: "Mon profil", sub: "" };
       case "profileEdit": return { title: "Modifier le profil", sub: "" };
@@ -1331,6 +1451,14 @@
         const s = storyById(cur.params.storyId);
         return { title: s ? s.title : "Épisode", sub: "Épisode " + cur.params.n };
       }
+      case "course": {
+        const c = courseById(cur.params.id);
+        return { title: c ? c.title : "Cours", sub: "Cours informatique" };
+      }
+      case "courseLesson": {
+        const c = courseById(cur.params.courseId);
+        return { title: c ? c.title : "Leçon", sub: "Leçon " + cur.params.n };
+      }
       case "admin": return { title: "Administration", sub: "Tableau de bord" };
       case "adminTips": return { title: "Astuces", sub: "Administration" };
       case "adminTipForm": return { title: "Astuce", sub: "Administration" };
@@ -1341,6 +1469,10 @@
         return { title: s ? s.title : "Série", sub: "Administration" };
       }
       case "adminEpisodeForm": return { title: "Épisode", sub: "Administration" };
+      case "adminCourses": return { title: "Cours informatiques", sub: "Administration" };
+      case "adminCourseForm": return { title: "Cours", sub: "Administration" };
+      case "adminCourse": return { title: "Leçons", sub: "Administration" };
+      case "adminCourseLessonForm": return { title: "Leçon", sub: "Administration" };
       case "adminUsers": return { title: "Utilisateurs", sub: "Administration" };
       case "adminSettings": return { title: "Réglages", sub: "Administration" };
       default: return { title: App.settings.appName || "BCréation", sub: "" };
@@ -1369,12 +1501,51 @@
     $("#drawerAdmin").classList.toggle("active", ADMIN_ROUTES.indexOf(cur.name) >= 0);
   }
 
+  function appBasePath() {
+    if (location.protocol === "file:") return "";
+    const script = document.querySelector('script[src*="assets/js/app.js"]');
+    if (script) {
+      const path = new URL(script.src, location.href).pathname;
+      return path.replace(/\/assets\/js\/app\.js$/, "");
+    }
+    return location.pathname.replace(/\/index(?:\.html)?$/, "").replace(/\/$/, "");
+  }
+
+  function routePath(cur) {
+    const p = cur.params || {};
+    const ids = {
+      home: "index", tips: "astuces", stories: "histoires", courses: "cours-informatiques",
+      favorites: "favoris", profile: "profil", about: "a-propos", login: "connexion", signup: "inscription"
+    };
+    if (ids[cur.name]) return ids[cur.name];
+    if (cur.name === "tip") return "astuce/" + encodeURIComponent(p.id || "");
+    if (cur.name === "story") return "histoire/" + encodeURIComponent(p.id || "");
+    if (cur.name === "episode") return "episode/" + encodeURIComponent(p.storyId || "") + "/" + p.n;
+    if (cur.name === "course") return "cours/" + encodeURIComponent(p.id || "");
+    if (cur.name === "courseLesson") return "cours/" + encodeURIComponent(p.courseId || "") + "/lecon/" + p.n;
+    if (cur.name.indexOf("admin") === 0) return "administration/" + cur.name.replace(/^admin/, "").toLowerCase();
+    return "index";
+  }
+
+  function syncUrl(cur) {
+    if (location.protocol === "file:") {
+      const hash = "#" + routePath(cur);
+      if (location.hash !== hash) history.replaceState(null, "", hash);
+    } else {
+      const target = appBasePath() + "/" + routePath(cur);
+      if (location.pathname !== target || location.search || location.hash) history.replaceState(null, "", target);
+    }
+    const info = headerInfo(cur);
+    document.title = (info.title || "BCréation") + " — BCréation";
+  }
+
   function render(dir) {
     const cur = stack[stack.length - 1];
     const view = VIEWS[cur.name] || renderNotFound;
     main.innerHTML = view(cur.params);
 
     applyChrome(cur);
+    syncUrl(cur);
 
     main.classList.remove("anim-push", "anim-pop");
     void main.offsetWidth;
@@ -1428,6 +1599,9 @@
       }
     } else if (name === "adminStories") {
       App.storyList = await BCApi.api("adminStories");
+    } else if (name === "adminCourses" || name === "adminCourseForm" || name === "adminCourse" || name === "adminCourseLessonForm") {
+      App.courseList = await BCApi.api("adminCourses");
+      if (name !== "adminCourseForm" && cur.params.id && !(App.courseList || []).some((x) => x.id === cur.params.id)) throw new Error("Cours introuvable.");
     } else if (name === "adminStory" || name === "adminStoryForm" || name === "adminEpisodeForm") {
       App.storyList = await BCApi.api("adminStories");
       if (name !== "adminStoryForm" && cur.params.id && !(App.storyList || []).some((x) => x.id === cur.params.id)) {
@@ -1593,6 +1767,7 @@
     App.categories = data.categories || [];
     App.tips = data.tips || [];
     App.stories = data.stories || [];
+    App.courses = data.courses || [];
 
     CAT_MAP = {};
     App.categories.forEach((c) => { CAT_MAP[c.id] = c; });
@@ -1605,6 +1780,7 @@
     App.admin = null;
     App.tipList = null;
     App.storyList = null;
+    App.courseList = null;
     App.userList = null;
     App.adminSettings = null;
   }
@@ -1677,6 +1853,11 @@
 
   async function handleForm(form) {
     const kind = form.dataset.form;
+    const visualEditor = form.querySelector('.editor-content[contenteditable="true"]');
+    if (visualEditor) {
+      const source = form.querySelector('textarea[name="body"]');
+      if (source) source.value = editorHTMLToText(visualEditor);
+    }
     const fd = new FormData(form);
     const btn = form.querySelector('[type="submit"]');
     const errEl = form.querySelector(".form-error");
@@ -1753,13 +1934,29 @@
         await refreshBootstrap();
         toast("Astuce enregistrée.");
         await backAfterForm("adminTips");
+      } else if (kind === "course") {
+        const image = await readImageFile(form.querySelector('[name="image"]') && form.querySelector('[name="image"]').files[0]);
+        const current = (App.courseList || []).find((c) => c.id === String(fd.get("id") || ""));
+        const course = { id: String(fd.get("id") || ""), title: String(fd.get("title") || "").trim(), description: String(fd.get("description") || "").trim().slice(0, 200), published: fd.get("published") === "on", image: image || (current && current.image) || "" };
+        await BCApi.api("adminSaveCourse", { course: course });
+        invalidateAdmin();
+        await refreshBootstrap();
+        toast("Cours enregistré dans Google Sheets.");
+        await backAfterForm("adminCourses");
+      } else if (kind === "courseLesson") {
+        const lesson = { courseId: String(fd.get("courseId") || ""), n: Number(fd.get("n")) || 1, title: String(fd.get("title") || "").trim(), body: textToBlocks(fd.get("body")), published: fd.get("published") === "on" };
+        await BCApi.api("adminSaveCourseLesson", { lesson: lesson });
+        invalidateAdmin();
+        await refreshBootstrap();
+        toast("Leçon enregistrée dans Google Sheets.");
+        await backAfterForm("adminCourses");
       } else if (kind === "story") {
         const colors = [String(fd.get("c1") || "#ff7a9c"), String(fd.get("c2") || "#7c3aed")];
         const image = await readImageFile(form.querySelector('[name="image"]') && form.querySelector('[name="image"]').files[0]);
         const story = {
           id: String(fd.get("id") || ""),
           title: String(fd.get("title") || "").trim(),
-          tagline: String(fd.get("tagline") || "").trim(),
+          tagline: String(fd.get("tagline") || "").trim().slice(0, 200),
           author: String(fd.get("author") || "").trim(),
           genre: String(fd.get("genre") || "").trim(),
           status: String(fd.get("status") || "").trim(),
@@ -1772,7 +1969,7 @@
         await BCApi.api("adminSaveStory", { story: story });
         invalidateAdmin();
         await refreshBootstrap();
-        toast("Série enregistrée.");
+        toast(/cours|informatique/i.test(story.genre) ? "Cours enregistré." : "Série enregistrée.");
         await backAfterForm("adminStories");
       } else if (kind === "episode") {
         const image = await readImageFile(form.querySelector('[name="image"]') && form.querySelector('[name="image"]').files[0]);
@@ -1792,7 +1989,7 @@
         await BCApi.api("adminSaveEpisode", { episode: episode });
         invalidateAdmin();
         await refreshBootstrap();
-        toast("Épisode enregistré.");
+        toast(currentStory && isCourse(currentStory) ? "Leçon enregistrée." : "Épisode enregistré.");
         await backAfterForm("adminStories");
       } else if (kind === "settings") {
         const welcomeCredits = Number(fd.get("welcomeCredits")) || 0;
@@ -1827,6 +2024,18 @@
     } catch (err) {
       toast(err.message);
     }
+  }
+
+  async function deleteCourse(id) {
+    if (!await askConfirm({ title: "Supprimer le cours ?", text: "Le cours et ses leçons seront supprimés.", label: "Supprimer", danger: true })) return;
+    try { await BCApi.api("adminDeleteCourse", { id: id }); invalidateAdmin(); await refreshBootstrap(); toast("Cours supprimé."); await showRoute("none"); } catch (err) { toast(err.message); }
+  }
+
+  async function deleteCourseLesson(courseId, n) {
+    const c = (App.courseList || []).find((x) => x.id === courseId);
+    const l = c && (c.lessons || []).find((x) => Number(x.n) === Number(n));
+    if (!l || !await askConfirm({ title: "Supprimer la leçon ?", text: "Cette action est définitive.", label: "Supprimer", danger: true })) return;
+    try { await BCApi.api("adminDeleteCourseLesson", { id: l.id || "" }); invalidateAdmin(); await refreshBootstrap(); toast("Leçon supprimée."); await showRoute("none"); } catch (err) { toast(err.message); }
   }
 
   async function deleteStory(id) {
@@ -2073,10 +2282,14 @@
     if (editorButton) {
       const editor = editorButton.closest(".editor-shell") && editorButton.closest(".editor-shell").querySelector(".editor-content");
       if (editor) {
-        const prefix = { bold: "**texte**", italic: "_texte_", title: "## Titre", quote: "> Citation", list: "- Élément", paragraph: "Paragraphe" }[editorButton.dataset.editor] || "";
-        const start = editor.selectionStart || editor.value.length;
-        editor.value = editor.value.slice(0, start) + (start && editor.value[start - 1] !== "\n" ? "\n" : "") + prefix + editor.value.slice(editor.selectionEnd || start);
+        const command = editorButton.dataset.editor;
         editor.focus();
+        if (command === "bold") document.execCommand("bold");
+        else if (command === "italic") document.execCommand("italic");
+        else if (command === "title") document.execCommand("formatBlock", false, "h2");
+        else if (command === "subtitle") document.execCommand("formatBlock", false, "h3");
+        else if (command === "paragraph") document.execCommand("formatBlock", false, "p");
+        else if (command === "list") document.execCommand("insertUnorderedList");
       }
       return;
     }
@@ -2146,6 +2359,22 @@
       return;
     }
 
+    const courseLesson = e.target.closest("[data-course-lesson]");
+    if (courseLesson) {
+      const parts = courseLesson.dataset.courseLesson.split(":");
+      navigate("courseLesson", { courseId: parts[0], n: Number(parts[1]) }, "push");
+      return;
+    }
+
+    const courseEl = e.target.closest("[data-course]");
+    if (courseEl) {
+      const id = courseEl.dataset.course;
+      const cur = stack[stack.length - 1];
+      if (cur.name === "course" && cur.params.id === id) return;
+      navigate("course", { id: id }, "push");
+      return;
+    }
+
     const chip = e.target.closest("[data-cat]");
     if (chip) {
       tipsCat = chip.dataset.cat;
@@ -2187,6 +2416,11 @@
       return;
     }
 
+    const delCourse = e.target.closest("[data-del-course]");
+    if (delCourse) { deleteCourse(delCourse.dataset.delCourse); return; }
+    const delCourseLesson = e.target.closest("[data-del-course-lesson]");
+    if (delCourseLesson) { const parts = delCourseLesson.dataset.delCourseLesson.split(":"); deleteCourseLesson(parts[0], Number(parts[1])); return; }
+
     const creditUser = e.target.closest("[data-credit-user]");
     if (creditUser) {
       const user = (App.userList || []).find((u) => u.id === creditUser.dataset.creditUser);
@@ -2216,6 +2450,7 @@
     if (nav) {
       const params = { id: nav.dataset.id };
       if (nav.dataset.n) params.n = parseInt(nav.dataset.n, 10);
+      if (nav.dataset.course) params.course = true;
       go(nav.dataset.nav, params);
       return;
     }
@@ -2337,17 +2572,27 @@
 
   /* ---------------- Démarrage ---------------- */
 
+  function routeFromLocation() {
+    let source = location.protocol === "file:" ? String(location.hash || "").replace(/^#/, "") : location.pathname.replace(new RegExp("^" + appBasePath().replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + ""), "").replace(/^\//, "");
+    if (!source || source === "index.html" || source === "index") source = "accueil";
+    const parts = source.split("/").filter(Boolean).map((x) => decodeURIComponent(x));
+    const root = { accueil: "home", astuces: "tips", histoires: "stories", "cours-informatiques": "courses", favoris: "favorites", profil: "profile", "a-propos": "about", connexion: "login", inscription: "signup" };
+    if (!parts.length || root[parts[0]]) return { name: root[parts[0]] || "home", params: {} };
+    if ((parts[0] === "astuce" || parts[0] === "tip") && parts[1]) return { name: "tip", params: { id: parts[1] } };
+    if ((parts[0] === "histoire" || parts[0] === "story") && parts[1]) return { name: "story", params: { id: parts[1] } };
+    if (parts[0] === "episode" && parts[1] && parts[2]) return { name: "episode", params: { storyId: parts[1], n: Number(parts[2]) } };
+    if (parts[0] === "cours" && parts[1] && parts[2] === "lecon" && parts[3]) return { name: "courseLesson", params: { courseId: parts[1], n: Number(parts[3]) } };
+    if (parts[0] === "cours" && parts[1]) return { name: "course", params: { id: parts[1] } };
+    return { name: "home", params: {} };
+  }
+
   async function boot() {
     applyTheme(theme);
     main.innerHTML = loadingHTML();
     try {
       await refreshBootstrap();
       renderDrawer();
-      const deep = String(location.hash || "").replace(/^#/, "").split("/");
-      if (deep[0] === "tip" && deep[1]) stack = [{ name: "tip", params: { id: deep[1] } }];
-      else if (deep[0] === "story" && deep[1]) stack = [{ name: "story", params: { id: deep[1] } }];
-      else if (deep[0] === "episode" && deep[1] && deep[2]) stack = [{ name: "episode", params: { storyId: deep[1], n: Number(deep[2]) } }];
-      else stack = [{ name: "home", params: {} }];
+      stack = [routeFromLocation()];
       render("none");
     } catch (err) {
       renderDrawer();
@@ -2356,6 +2601,14 @@
   }
 
   let retryLoad = boot;
+
+  window.addEventListener("hashchange", () => {
+    const next = routeFromLocation();
+    const current = stack[stack.length - 1];
+    if (current && routePath(current) === routePath(next)) return;
+    stack = [next];
+    showRoute("none");
+  });
 
   applyTheme(theme);
   boot();
